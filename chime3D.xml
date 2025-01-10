@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<NioAudioSoundEffect version ="2">
+    <Chime3DMapping filePath ="/mnt/nio/etc/chime3d/">
+        <pos id="1" fileName = "preset_line.3dc"/> 
+        <pos id="2" fileName = "preset_round.3dc"/> 
+        <pos id="3" fileName = "preset_static.3dc"/> 
+        <pos id="4" fileName = "test_FR.3dc"/> 
+        <pos id="5" fileName = "test_Barbecue.3dc"/> 
+    </Chime3DMapping>
+</NioAudioSoundEffect>
