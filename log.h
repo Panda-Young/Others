@@ -40,7 +40,7 @@ typedef enum {
 #if defined(__ANDROID__)
 #define USE_ANDROID_LOG 0
 #endif
-#define USE_FILELOG 1
+#define USE_FILELOG 0
 
 #ifndef __FILENAME__
 #define __FILENAME__ (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1) : (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))

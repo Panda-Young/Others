@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 01:37:27
  * @Version: 0.1.0
  * @Author: 1641140221@qq.com
- * @Copyright (c) 2024 by @AAC Technologies, All Rights Reserved.
+ * @Copyright (c) 2024 by @Panda-Young, All Rights Reserved.
  **************************************************************/
 
 #ifndef _ALGO_API_H

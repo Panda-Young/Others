@@ -2,8 +2,8 @@
  * @Description: algo use
  * @Date: 2024-05-16 17:28:52
  * @Version: 0.1.0
- * @Author: pandapan@aactechnologies.com
- * Copyright (c) 2024 by @AAC Technologies, All Rights Reserved.
+ * @Author: Panda-Young
+ * Copyright (c) 2024 by @Panda-Young, All Rights Reserved.
  */
 
 #include "algo_example.h"

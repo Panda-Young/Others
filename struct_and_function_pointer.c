@@ -1,39 +1,46 @@
-/* **************************************************************
- * @Description: struct for class
- * @Date: 2024-02-18 14:13:48
- * @Version: 0.1.0
- * @Author: pandapan@aactechnologies.com
- * @Copyright (c) 2024 by @AAC Technologies, All Rights Reserved.
- **************************************************************/
+/***************************************************************************
+ * Description: Example of using structs and function pointers in C
+ * Version: 0.1.0
+ * Author: Panda-Young
+ * Date: 2025-01-06 23:07:50
+ * Copyright (c) 2025 by Panda-Young, All Rights Reserved.
+ **************************************************************************/
+
 #include <stdio.h>
 
+// Define a struct to represent a box with dimensions and function pointers
 typedef struct BOX_t {
     double length;
     double breadth;
     double height;
     // void (*BOX_t)();
     // void (*_BOX_t)();
-    double (*getVolume)(struct BOX_t*); // 函数指针，返回体积
-    double (*getSurfaceArea)(struct BOX_t*); // 函数指针，返回表面积
-    void (*setDimensions)(struct BOX_t*, double, double, double); // 函数指针，设置尺寸
+    double (*getVolume)(struct BOX_t*); // Function pointer to calculate volume
+    double (*getSurfaceArea)(struct BOX_t*); // Function pointer to calculate surface area
+    void (*setDimensions)(struct BOX_t*, double, double, double); // Function pointer to set dimensions
 } *BOX_p;
 
+// Constructor function to be called when the struct is created
 void __attribute__((constructor)) BOX_t() {
     printf("BOX_t is being created\n");
 }
 
+// Destructor function to be called when the struct is destroyed
 void __attribute__((destructor)) _BOX_t() {
     printf("BOX_t is being destroyed\n");
 }
 
+// Function to calculate the volume of the box
 double getVolume(struct BOX_t* box) {
     return box->length * box->breadth * box->height;
 }
 
+// Function to calculate the surface area of the box
 double getSurfaceArea(struct BOX_t* box) {
     return 2 * (box->length * box->breadth + box->breadth * box->height + box->height * box->length);
 }
 
+// Function to set the dimensions of the box
 void setDimensions(struct BOX_t* box, double length, double breadth, double height) {
     box->length = length;
     box->breadth = breadth;

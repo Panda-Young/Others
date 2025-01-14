@@ -1,38 +1,45 @@
-/* **************************************************************
- * @Description: singleton class
- * @Date: 2024-05-13 16:34:28
- * @Version: 0.1.0
- * @Author: pandapan@aactechnologies.com
- * @Copyright (c) 2024 by @AAC Technologies, All Rights Reserved.
- **************************************************************/
+/***************************************************************************
+ * Description: Implementation of a singleton class in C++
+ * Version: 0.1.0
+ * Author: Panda-Young
+ * Date: 2024-05-13 16:34:28
+ * Copyright (c) 2024 by Panda-Young, All Rights Reserved.
+ **************************************************************************/
 
 #include <iostream>
 
 class Singleton
 {
 public:
-    static Singleton *get_Instance(); // 声明为静态成员函数
+    // Static method to get the single instance of the class
+    static Singleton *get_Instance();
 
 private:
+    // Private constructor to prevent instantiation
     Singleton();
+    // Private destructor
     ~Singleton();
-    static Singleton *Instance;                  // 声明为静态成员变量
-    Singleton(const Singleton &) = delete;            // 禁止拷贝构造
-    Singleton &operator=(const Singleton &) = delete; // 禁止赋值操作
+    // Static pointer to hold the single instance of the class
+    static Singleton *Instance;
+    // Delete copy constructor to prevent copying
+    Singleton(const Singleton &) = delete;
+    // Delete assignment operator to prevent assignment
+    Singleton &operator=(const Singleton &) = delete;
+    // Pointer for demonstration purposes
     void *test_ptr = nullptr;
 };
 
-// 在类外定义静态成员变量
+// Initialize the static member variable
 Singleton *Singleton::Instance = nullptr;
 
 Singleton::Singleton()
 {
-    // 这里不需要再设置 test_ptr 为 nullptr，因为它已经在类中初始化为 nullptr
+    // No need to initialize test_ptr to nullptr here as it is already initialized
 }
 
 Singleton::~Singleton()
 {
-    // 如果需要释放 test_ptr 指向的资源，请在这里做
+    // No need to free test_ptr here as it is not dynamically allocated
 }
 
 Singleton *Singleton::get_Instance()
@@ -45,12 +52,12 @@ Singleton *Singleton::get_Instance()
 
 int main(int argc, char *argv[])
 {
-    Singleton *instance = Singleton::get_Instance(); // 正确调用静态成员函数
+    Singleton *instance = Singleton::get_Instance(); // Get the single instance of the class
     std::cout << std::hex << instance << std::endl;
 
-    // 如果需要，可以在程序结束前删除单例实例
-    // 但是通常单例会在程序结束时自动销毁
-    // delete Singleton::Instance; // 谨慎使用，这可能会导致在程序结束前删除单例；因为当程序结束时，全局/静态对象会被自动销毁  
+    // No need to delete the instance manually as it will be automatically deleted
+    // when the program exits
+    // delete Singleton::Instance; // Uncomment if you want to delete the instance manually
 
     return 0;
 }

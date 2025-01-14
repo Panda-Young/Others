@@ -2,8 +2,8 @@
  * @Description: sum of hex numbers
  * @Date: 2024-01-10 18:46:31
  * @Version: 0.1.0
- * @Author: pandapan@aactechnologies.com
- * Copyright (c) 2024 by @AAC Technologies, All Rights Reserved. 
+ * @Author: Panda-Young
+ * Copyright (c) 2024 by @Panda-Young, All Rights Reserved.
  */
 
 #include <stdio.h>

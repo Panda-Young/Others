@@ -1,10 +1,11 @@
-/* **************************************************************
- * @Description: 
- * @Date: 2024-02-06 17:35:44
- * @Version: 0.1.0
- * @Author: pandapan@aactechnologies.com
- * @Copyright (c) 2024 by @AAC Technologies, All Rights Reserved. 
- **************************************************************/
+/***************************************************************************
+ * Description:
+ * version: 0.1.0
+ * Author: Panda-Young
+ * Date: 2025-01-06 23:07:49
+ * Copyright (c) 2025 by Panda-Young, All Rights Reserved.
+ **************************************************************************/
+
 #ifndef __CHIME_3D_COMMON_H__
 #define __CHIME_3D_COMMON_H__
 

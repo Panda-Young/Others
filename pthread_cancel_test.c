@@ -2,8 +2,8 @@
  * @Description: thread test
  * @Date: 2024-05-09 12:33:24
  * @Version: 0.1.0
- * @Author: pandapan@aactechnologies.com
- * Copyright (c) 2024 by @AAC Technologies, All Rights Reserved.
+ * @Author: Panda-Young
+ * Copyright (c) 2024 by @Panda-Young, All Rights Reserved.
  */
 #include <pthread.h>
 #include <stdio.h>
@@ -12,16 +12,21 @@
 
 void *my_thread_func(void *arg)
 {
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);  // 启用取消状态
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL); // 设置取消类型为延迟取消
+    // Enable thread cancellation
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    // Set cancellation type to deferred
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
 
     while (1) {
         printf("Thread is running...\n");
-        pthread_testcancel(); // 这是一个取消点
-        sleep(1);             // 模拟一些工作
+        // Check for cancellation request
+        pthread_testcancel();
+        // Simulate some work
+        sleep(1);
     }
 
-    pthread_exit(NULL); // 线程函数正常退出，但在这个例子中永远不会到达这里
+    // Exit the thread
+    pthread_exit(NULL);
 }
 
 int main()
@@ -29,24 +34,24 @@ int main()
     pthread_t my_thread;
     int ret;
 
-    // 创建线程
+    // Create a new thread
     ret = pthread_create(&my_thread, NULL, my_thread_func, NULL);
     if (ret != 0) {
         printf("Error: pthread_create() failed\n");
         exit(EXIT_FAILURE);
     }
 
-    // 让主线程等待一段时间，以便可以看到子线程在运行
+    // Let the thread run for a while
     sleep(5);
 
-    // 取消线程
+    // Cancel the thread
     printf("Canceling thread...\n");
     ret = pthread_cancel(my_thread);
     if (ret != 0) {
         printf("Error: pthread_cancel() failed\n");
     }
 
-    // 等待线程结束
+    // Wait for the thread to finish
     void *res;
     pthread_join(my_thread, &res);
 

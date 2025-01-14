@@ -2,8 +2,8 @@
  * @Description: parse chime config header
  * @Date: 2024-05-27 13:59:34
  * @Version: 0.1.0
- * @Author: pandapan@aactechnologies.com
- * @Copyright (c) 2024 by @AAC Technologies, All Rights Reserved. 
+ * @Author: Panda-Young
+ * @Copyright (c) 2024 by @Panda-Young, All Rights Reserved.
  **************************************************************/
 #ifndef __H_PARSER__
 #define __H_PARSER__

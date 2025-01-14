@@ -19,4 +19,4 @@ int main() {
 }
 
 // compile with:
-// gcc -o hello_tf hello_tf.c log.c -ltensorflow
+// gcc -o hello_tf hello_tf.c log.c -ltensorflow && ./hello_tf

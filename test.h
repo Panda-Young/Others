@@ -2,8 +2,8 @@
  * @Description: test
  * @Date: 2024-07-09 14:41:42
  * @Version: 0.1.0
- * @Author: pandapan@aactechnologies.com
- * @Copyright (c) 2024 by @AAC Technologies, All Rights Reserved.
+ * @Author: Panda-Young
+ * @Copyright (c) 2024 by @Panda-Young, All Rights Reserved.
  **************************************************************/
 
 #ifndef __TEST_H__

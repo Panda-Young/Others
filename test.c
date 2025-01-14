@@ -3,7 +3,7 @@
  * @Date: 2024-08-10 14:41:06
  * @Version: 0.1.0
  * @Author: error: git config user.email & please set dead value or install git
- * Copyright (c) 2024 by @AAC Technologies, All Rights Reserved.
+ * Copyright (c) 2024 by @Panda-Young, All Rights Reserved.
  */
 
 #include <stdio.h>

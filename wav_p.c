@@ -6,7 +6,11 @@
  * Copyright (c) 2024 by Panda-Young, All Rights Reserved.
  **************************************************************************/
 
-#define _CRT_SECURE_NO_WARNINGS
+ #if defined(_MSC_VER)
+ #ifndef _CRT_SECURE_NO_WARNINGS
+ #define _CRT_SECURE_NO_WARNINGS
+ #endif
+ #endif
 
 #include "wav_p.h"
 #include "log.h"

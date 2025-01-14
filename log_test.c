@@ -1,9 +1,9 @@
-/* **************************************************************************
- * @Description: 
- * @Version: 0.1.0
- * @Author: pandapan@aactechnologies.com
- * @Date: 2024-11-01 14:08:07
- * @Copyright (c) 2024 by @AAC Technologies, All Rights Reserved.
+/***************************************************************************
+ * Description: test log
+ * version: 0.1.0
+ * Author: Panda-Young
+ * Date: 2025-01-07 12:44:39
+ * Copyright (c) 2025 by Panda-Young, All Rights Reserved.
  **************************************************************************/
 
 #include "log.h"

@@ -3,8 +3,8 @@
                 and then calculate and count the average difference and maximum difference
  * @Date: 2024-03-22 16:43:22
  * @Version: 0.1.0
- * @Author: pandapan@aactechnologies.com
- * Copyright (c) 2024 by @AAC Technologies, All Rights Reserved.
+ * @Author: Panda-Young
+ * Copyright (c) 2024 by @Panda-Young, All Rights Reserved.
  */
 
 #include <errno.h>

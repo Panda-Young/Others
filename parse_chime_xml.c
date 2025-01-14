@@ -3,7 +3,7 @@
  * @Date: 2024-05-16 19:45:55
  * @Version: 0.1.0
  * @Author: 1641140221@qq.com
- * Copyright (c) 2024 by @AAC Technologies, All Rights Reserved.
+ * Copyright (c) 2024 by @Panda-Young, All Rights Reserved.
  */
 #include <ctype.h>
 #include <stdio.h>

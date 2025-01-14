@@ -1,10 +1,10 @@
-/* **************************************************************
- * @Description: position mapper
- * @Date: 2024-05-20 13:47:42
- * @Version: 0.1.0
- * @Author: error: git config user.email & please set dead value or install git
- * @Copyright (c) 2024 by @AAC Technologies, All Rights Reserved. 
- **************************************************************/
+/***************************************************************************
+ * Description: queue_mapper.cpp
+ * version: 0.1.0
+ * Author: Panda-Young
+ * Date: 2025-01-06 23:07:50
+ * Copyright (c) 2025 by Panda-Young, All Rights Reserved.
+ **************************************************************************/
 
 #include <iostream>
 #include <set>
@@ -15,8 +15,9 @@ private:
     std::set<int> usedIDs;
     std::queue<int> inputQueue;
 
+    // Find an unused ID from 0 to 100
     int findUnusedID() {
-        for (int id = 0; id < 6; ++id) {
+        for (int id = 0; id < 100; ++id) {
             if (usedIDs.find(id) == usedIDs.end()) {
                 return id;
             }
@@ -26,6 +27,7 @@ private:
     }
 
 public:
+    // Add an input value to the queue and map it to an unused ID
     void addInput(int inputValue) {
         inputQueue.push(inputValue);
 
@@ -36,6 +38,7 @@ public:
         }
     }
 
+    // Release an ID and map the next input value in the queue to the released ID
     void releaseID(int id) {
         usedIDs.erase(id);
 
@@ -52,25 +55,22 @@ public:
 int main() {
     PositionMapper mapper;
 
-    // 添加一些输入
-    // for (int i = 0; i < 3; ++i) {
-    //     mapper.addInput(i);
-    // }
+    // Add some input values
     mapper.addInput(200);  
     mapper.addInput(100);  
     mapper.addInput(300);  
     mapper.addInput(101);  
     mapper.addInput(302);  
 
+    // Release some IDs
     mapper.releaseID(2);
     mapper.releaseID(4);
 
+    // Add more input values
     mapper.addInput(303);  
     mapper.addInput(304);  
     mapper.addInput(305);  
     mapper.addInput(306);  
-
-    // 假设我们在某个时刻释放了一些ID
 
     return 0;
 }
