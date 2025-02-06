@@ -27,13 +27,13 @@ int main()
     SOCKADDR_IN serverAddr;
     char buffer[BUF_SIZE] = "Hello from client";
 
-    // ³õÊ¼»¯Winsock
+    // åˆå§‹åŒ–Winsock
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         printf("WSAStartup failed.\n");
         return 1;
     }
 
-    // ´´½¨socket
+    // åˆ›å»ºsocket
     clientSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (clientSocket == INVALID_SOCKET) {
         printf("Socket creation failed.\n");
@@ -41,12 +41,12 @@ int main()
         return 1;
     }
 
-    // ÉèÖÃ·şÎñÆ÷µØÖ·
+    // è®¾ç½®æœåŠ¡å™¨åœ°å€
     serverAddr.sin_family = PF_INET;
     serverAddr.sin_port = htons(PORT_ID);
     serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
-    // Á¬½Óµ½·şÎñÆ÷
+    // è¿æ¥åˆ°æœåŠ¡å™¨
     if (connect(clientSocket, (SOCKADDR *)&serverAddr, sizeof(SOCKADDR)) == SOCKET_ERROR) {
         printf("Connection to server failed.\n");
         closesocket(clientSocket);
@@ -54,12 +54,12 @@ int main()
         return 1;
     }
 
-    // ·¢ËÍÊı¾İ
+    // å‘é€æ•°æ®
     send(clientSocket, buffer, strlen(buffer), 0);
     printf("Sent: %s\n", buffer);
     printf("Sent %lu Bytes.\n", strlen(buffer));
 
-    // ¹Ø±ÕÁ¬½Ó
+    // å…³é—­è¿æ¥
     closesocket(clientSocket);
     WSACleanup();
 
@@ -79,31 +79,31 @@ int main()
     struct sockaddr_in serverAddr;
     char buffer[BUF_SIZE] = "Hello from client";
 
-    // ´´½¨socket
+    // åˆ›å»ºsocket
     clientSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (clientSocket < 0) {
         printf("Socket creation failed.\n");
         return 1;
     }
 
-    // ÉèÖÃ·şÎñÆ÷µØÖ·
+    // è®¾ç½®æœåŠ¡å™¨åœ°å€
     serverAddr.sin_family = PF_INET;
     serverAddr.sin_port = htons(PORT_ID);
     serverAddr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
-    // Á¬½Óµ½·şÎñÆ÷
+    // è¿æ¥åˆ°æœåŠ¡å™¨
     if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(struct sockaddr)) < 0) {
         printf("Connection to server failed.\n");
         close(clientSocket);
         return 1;
     }
 
-    // ·¢ËÍÊı¾İ
+    // å‘é€æ•°æ®
     send(clientSocket, buffer, strlen(buffer), 0);
     printf("Sent: %s\n", buffer);
     printf("Sent %lu Bytes.\n", strlen(buffer));
 
-    // ¹Ø±ÕÁ¬½Ó
+    // å…³é—­è¿æ¥
     close(clientSocket);
 
     return 0;

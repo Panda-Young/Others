@@ -32,6 +32,7 @@ int IsEqualGUID(const GUID_t *guid1, const GUID_t *guid2)
 #ifdef _WIN32
 void enable_virtual_terminal_processing()
 {
+    // Enable ANSI escape code for windows console
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     DWORD mode;
 

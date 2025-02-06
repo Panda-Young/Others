@@ -27,7 +27,7 @@ void ProcessClient(LPVOID lpParam)
     SOCKET clientSocket = (SOCKET)lpParam;
     char buffer[BUF_SIZE] = {0};
 
-    // ½ÓÊÕ²¢·¢ËÍÏûÏ¢
+    // æ¥æ”¶å¹¶å‘é€æ¶ˆæ¯
     while (1) {
         memset(buffer, 0, BUF_SIZE);
         char *pChunkStart = buffer;
@@ -47,7 +47,7 @@ void ProcessClient(LPVOID lpParam)
         printf("\n");
 #endif
     }
-    // ¹Ø±ÕÁ¬½Ó
+    // å…³é—­è¿æ¥
     closesocket(clientSocket);
     printf("close the socket id %d\n", clientSocket);
     printf("\nWaiting for connection...\n");
@@ -59,27 +59,27 @@ int main()
     SOCKET serverSocket, clientSocket;
     SOCKADDR_IN serverAddr, clientAddr;
 
-    // ³õÊ¼»¯Winsock
+    // åˆå§‹åŒ–Winsock
     WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-    // ´´½¨socket
+    // åˆ›å»ºsocket
     serverSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    // ÉèÖÃsocketÑ¡Ïî
+    // è®¾ç½®socketé€‰é¡¹
     int opt = 1;
     setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt));
 
-    // °ó¶¨socketµ½Ò»¸öµØÖ·
+    // ç»‘å®šsocketåˆ°ä¸€ä¸ªåœ°å€
     serverAddr.sin_family = PF_INET;
     serverAddr.sin_port = htons(PORT_ID);
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     bind(serverSocket, (SOCKADDR *)&serverAddr, sizeof(SOCKADDR));
 
-    // ¿ªÊ¼¼àÌıÁ¬½Ó
+    // å¼€å§‹ç›‘å¬è¿æ¥
     listen(serverSocket, 20);
     printf("Waiting for connection...\n");
 
-    // Ñ­»·½ÓÊÕĞÂµÄÁ¬½Ó
+    // å¾ªç¯æ¥æ”¶æ–°çš„è¿æ¥
     int addrLen = sizeof(SOCKADDR);
     while (1) {
         clientSocket = accept(serverSocket, (SOCKADDR *)&clientAddr, &addrLen);
@@ -87,7 +87,7 @@ int main()
         _beginthread(ProcessClient, 0, (LPVOID)clientSocket);
     }
 
-    // ÇåÀíWinsock
+    // æ¸…ç†Winsock
     WSACleanup();
 
     return 0;
@@ -103,7 +103,7 @@ void ProcessClient(int clientSocket)
 {
     char buffer[BUF_SIZE] = {0};
 
-    // ½ÓÊÕ²¢·¢ËÍÏûÏ¢
+    // æ¥æ”¶å¹¶å‘é€æ¶ˆæ¯
     while (1) {
         memset(buffer, 0, BUF_SIZE);
         char *pChunkStart = buffer;
@@ -122,7 +122,7 @@ void ProcessClient(int clientSocket)
         printf("\n");
 #endif
     }
-    // ¹Ø±ÕÁ¬½Ó
+    // å…³é—­è¿æ¥
     close(clientSocket);
     printf("close the socket id %d\n", clientSocket);
     printf("\nWaiting for connection...\n");
@@ -133,24 +133,24 @@ int main()
     int serverSocket, clientSocket;
     struct sockaddr_in serverAddr, clientAddr;
 
-    // ´´½¨socket
+    // åˆ›å»ºsocket
     serverSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    // ÉèÖÃsocketÑ¡Ïî
+    // è®¾ç½®socketé€‰é¡¹
     int opt = 1;
     setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    // °ó¶¨socketµ½Ò»¸öµØÖ·
+    // ç»‘å®šsocketåˆ°ä¸€ä¸ªåœ°å€
     serverAddr.sin_family = PF_INET;
     serverAddr.sin_port = htons(PORT_ID);
     serverAddr.sin_addr.s_addr = INADDR_ANY;
     bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(struct sockaddr));
 
-    // ¿ªÊ¼¼àÌıÁ¬½Ó
+    // å¼€å§‹ç›‘å¬è¿æ¥
     listen(serverSocket, 20);
     printf("Waiting for connection...\n");
 
-    // Ñ­»·½ÓÊÕĞÂµÄÁ¬½Ó
+    // å¾ªç¯æ¥æ”¶æ–°çš„è¿æ¥
     int addrLen = sizeof(struct sockaddr);
     while (1) {
         clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddr, (socklen_t *)&addrLen);
