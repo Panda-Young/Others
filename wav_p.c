@@ -6,11 +6,11 @@
  * Copyright (c) 2024 by Panda-Young, All Rights Reserved.
  **************************************************************************/
 
- #if defined(_MSC_VER)
- #ifndef _CRT_SECURE_NO_WARNINGS
- #define _CRT_SECURE_NO_WARNINGS
- #endif
- #endif
+#if defined(_MSC_VER)
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+#endif
 
 #include "wav_p.h"
 #include "log.h"
@@ -42,15 +42,42 @@ void enable_virtual_terminal_processing()
 }
 #endif
 
+const char *format_file_size(uint32_t bytes)
+{
+    static char buffer[32];
+    const char *units[] = {"Bytes", "kB", "MB", "GB"};
+    uint8_t unit_index = 0;
+    double size = bytes;
+
+    while (size >= 1024 && unit_index < 3) {
+        size /= 1024;
+        unit_index++;
+    }
+
+    if (unit_index == 0) {
+        snprintf(buffer, sizeof(buffer), "%u %s", bytes, units[unit_index]);
+    } else {
+        snprintf(buffer, sizeof(buffer), "%.2f %s", size, units[unit_index]);
+    }
+    return buffer;
+}
+
 int get_wav_header(const char *filename, std_wav_t *wav_header)
 {
     extra_info_chunk_t extra_info_chunk = {0};
+    sub_chunk_t extended_chunk = {0};
     uint32_t std_fmt_size = sizeof(format_chunk_t) - ID_LENGTH - sizeof(uint32_t);
     FILE *fp = fopen(filename, "rb");
     if (fp == NULL) {
         LOGE("Failed open file %s. Due to %s!", filename, strerror(errno));
         return -1;
     }
+
+    // Get the file size
+    fseek(fp, 0, SEEK_END);        // Move to the end of the file
+    uint32_t fileSize = ftell(fp); // Get the file size
+    fseek(fp, 0, SEEK_SET);        // Move back to the beginning of the file
+    LOGI("File size: %s ++++++++++", format_file_size(fileSize));
 
     if (fread(&wav_header->riff_chunk, sizeof(riff_chunk_t), 1, fp) == 0) {
         LOGE("ERROR: Read RIFF chunk failed!");
@@ -60,20 +87,18 @@ int get_wav_header(const char *filename, std_wav_t *wav_header)
         LOGE("ERROR: This is not a RIFF file!");
         goto error;
     }
-    LOGI("ChunkID:         %c%c%c%c",
-         wav_header->riff_chunk.chunk_id[0], wav_header->riff_chunk.chunk_id[1],
-         wav_header->riff_chunk.chunk_id[2], wav_header->riff_chunk.chunk_id[3]);
+    LOGI("ChunkID:         %.4s", wav_header->riff_chunk.chunk_id);
     LOGI("ChunkSize:       %u Bytes", wav_header->riff_chunk.chunk_size);
-    LOGI("type:            %c%c%c%c\n",
-         wav_header->riff_chunk.riff_type[0], wav_header->riff_chunk.riff_type[1],
-         wav_header->riff_chunk.riff_type[2], wav_header->riff_chunk.riff_type[3]);
+    LOGI("type:            %.4s\n", wav_header->riff_chunk.riff_type);
 
     if (strncmp((const char *)wav_header->riff_chunk.riff_type, "WAVE", ID_LENGTH) != 0) {
         LOGE("ERROR: This is not a wave file!");
         goto error;
     }
 
-    do {
+    // It should be noted that simply calling fseek does not automatically update the EOF status,
+    // because the feof() function has a delayed detection feature.
+    while (ftell(fp) < fileSize) {
         if (fread(&wav_header->format_chunk.chunk_id, sizeof(int8_t), ID_LENGTH, fp) == 0) {
             LOGE("ERROR: Read format chunk id failed!");
             goto error;
@@ -82,9 +107,7 @@ int get_wav_header(const char *filename, std_wav_t *wav_header)
             LOGE("ERROR: Read format chunk size failed!");
             goto error;
         }
-        LOGI("ChunkID:         %c%c%c%c",
-             wav_header->format_chunk.chunk_id[0], wav_header->format_chunk.chunk_id[1],
-             wav_header->format_chunk.chunk_id[2], wav_header->format_chunk.chunk_id[3]);
+        LOGI("ChunkID:         %.4s", wav_header->format_chunk.chunk_id);
         LOGI("ChunkSize:       %u Bytes", wav_header->format_chunk.chunk_size);
         if (strncmp((const char *)wav_header->format_chunk.chunk_id, "fmt ", ID_LENGTH) == 0) {
             break;
@@ -97,7 +120,7 @@ int get_wav_header(const char *filename, std_wav_t *wav_header)
             }
             wav_header->format_chunk.chunk_size = 0;
         }
-    } while (feof(fp) != -1);
+    }
 
     if (strncmp((const char *)wav_header->format_chunk.chunk_id, "fmt ", ID_LENGTH) != 0) {
         LOGE("ERROR: Can't find format_chunk!");
@@ -147,26 +170,24 @@ int get_wav_header(const char *filename, std_wav_t *wav_header)
         LOGD2("");
     }
 
-    do {
+    while (ftell(fp) < fileSize) {
         if (fread(&wav_header->data_chunk, sizeof(sub_chunk_t), 1, fp) == 0) {
             LOGE("ERROR: Read data chunk failed!");
             goto error;
         }
-        LOGI("ChunkID:         %c%c%c%c",
-             wav_header->data_chunk.chunk_id[0], wav_header->data_chunk.chunk_id[1],
-             wav_header->data_chunk.chunk_id[2], wav_header->data_chunk.chunk_id[3]);
+        LOGI("ChunkID:         %.4s", wav_header->data_chunk.chunk_id);
         LOGI("ChunkSize:       %u Bytes\n", wav_header->data_chunk.chunk_size);
         if (strncmp((const char *)wav_header->data_chunk.chunk_id, "data", ID_LENGTH) == 0) {
             break;
         } else {
             memset(wav_header->data_chunk.chunk_id, 0, ID_LENGTH);
             if (fseek(fp, wav_header->data_chunk.chunk_size, SEEK_CUR) != 0) {
-                LOGE("ERROR: Seek data chunk failed!");
+                LOGE("ERROR: Seek chunk failed!");
                 goto error;
             }
             wav_header->data_chunk.chunk_size = 0;
         }
-    } while (feof(fp) != -1);
+    }
 
     if (strncmp((const char *)wav_header->data_chunk.chunk_id, "data", ID_LENGTH) != 0) {
         LOGE("ERROR: Can't find data_chunk!");
@@ -175,8 +196,28 @@ int get_wav_header(const char *filename, std_wav_t *wav_header)
     if (fseek(fp, wav_header->data_chunk.chunk_size, SEEK_CUR) != 0) {
         LOGE("ERROR: Seek data chunk failed!");
         goto error;
+    }
+
+    while (ftell(fp) < fileSize) {
+        if (fread(&extended_chunk, sizeof(sub_chunk_t), 1, fp) == 0) {
+            LOGE("ERROR: Read extended chunk failed!");
+            goto error;
+        }
+        LOGI("ChunkID:         %.4s", extended_chunk.chunk_id);
+        LOGI("ChunkSize:       %u Bytes", extended_chunk.chunk_size);
+        uint32_t adjusted_size = extended_chunk.chunk_size;
+        if (extended_chunk.chunk_size % 2 != 0)
+            adjusted_size++; // WAV requires blocks to be double-byte aligned
+        if (fseek(fp, adjusted_size, SEEK_CUR) != 0) {
+            LOGE("ERROR: Seek extended chunk failed!");
+            goto error;
+        }
+    }
+
+    if (ftell(fp) == fileSize) {
+        LOGI("Reached the end of the file. ----------");
     } else {
-        fseek(fp, 0 - wav_header->data_chunk.chunk_size, SEEK_CUR);
+        LOGE("ERROR: File size is not equal to the chunk size!");
     }
 
     if (fp != NULL) {
@@ -205,7 +246,7 @@ int main(int argc, char *argv[])
     enable_virtual_terminal_processing();
 #endif
     if (argc < 2) {
-        LOGW2("Usage: %s [wave file] <enable_data_debug>", argv[0]);
+        LOGW2("Usage: %s [wave file]", argv[0]);
         return 0;
     }
 
