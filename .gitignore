@@ -58,3 +58,9 @@ dkms.conf
 
 # Local files
 *.log
+
+# test files
+test_dir/
+test.c
+test.cpp
+test.h
