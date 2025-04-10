@@ -36,54 +36,55 @@ typedef enum {
 #endif
 
 #ifndef __FILENAME__
-#define __FILENAME__ (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1) : (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
+#define __FILENAME__ \
+    (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1) : (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
 #endif
 
 #define LOG_FILE_NAME "test.log"
 
 #ifdef _WIN32
-#define LOG(level, level_str, fmt, ...)                                                              \
-    do {                                                                                             \
-        if (log_level >= level) {                                                                    \
-            FILE *log_file = fopen(LOG_FILE_NAME, "a+");                                             \
-            if (log_file) {                                                                          \
-                SYSTEMTIME st;                                                                       \
-                GetLocalTime(&st);                                                                   \
-                int pid = (int)GetCurrentProcessId();                                                \
-                int tid = (int)GetCurrentThreadId();                                                 \
-                char buf[256] = {0};                                                                 \
-                snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d.%03d [%d.%d] %s %s@%s:%d", \
-                         st.wYear, st.wMonth, st.wDay,                                               \
-                         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,                         \
-                         pid, tid, level_str, __FILENAME__, __FUNCTION__, __LINE__);                 \
-                fprintf(log_file, "%-96s" fmt "\n", buf, ##__VA_ARGS__);                             \
-                fflush(log_file);                                                                    \
-                fclose(log_file);                                                                    \
-            }                                                                                        \
-        }                                                                                            \
+#define LOG(level, level_str, fmt, ...)                                                                        \
+    do {                                                                                                       \
+        if (log_level >= level) {                                                                              \
+            FILE *log_file = fopen(LOG_FILE_NAME, "a+");                                                       \
+            if (log_file) {                                                                                    \
+                SYSTEMTIME st;                                                                                 \
+                GetLocalTime(&st);                                                                             \
+                int pid = (int)GetCurrentProcessId();                                                          \
+                int tid = (int)GetCurrentThreadId();                                                           \
+                char _log_buf[256] = {0};                                                                      \
+                snprintf(_log_buf, sizeof(_log_buf), "%04d-%02d-%02d %02d:%02d:%02d.%03d [%d.%d] %s %s@%s:%d", \
+                         st.wYear, st.wMonth, st.wDay,                                                         \
+                         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,                                   \
+                         pid, tid, level_str, __FILENAME__, __FUNCTION__, __LINE__);                           \
+                fprintf(log_file, "%-96s" fmt "\n", _log_buf, ##__VA_ARGS__);                                  \
+                fflush(log_file);                                                                              \
+                fclose(log_file);                                                                              \
+            }                                                                                                  \
+        }                                                                                                      \
     } while (0)
 #else
-#define LOG(level, level_str, fmt, ...)                                                               \
-    do {                                                                                              \
-        if (log_level >= level) {                                                                     \
-            FILE *log_file = fopen(LOG_FILE_NAME, "a+");                                              \
-            if (log_file) {                                                                           \
-                char buf[256] = {0};                                                                  \
-                struct tm tm_info;                                                                    \
-                struct timeval tv;                                                                    \
-                gettimeofday(&tv, NULL);                                                              \
-                localtime_r(&tv.tv_sec, &tm_info);                                                    \
-                int pid = (int)getpid();                                                              \
-                int tid = (int)syscall(SYS_gettid);                                                   \
-                snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d.%03ld [%d.%d] %s %s@%s:%d", \
-                         tm_info.tm_year + 1900, tm_info.tm_mon + 1, tm_info.tm_mday,                 \
-                         tm_info.tm_hour, tm_info.tm_min, tm_info.tm_sec, tv.tv_usec / 1000,          \
-                         pid, tid, level_str, __FILENAME__, __FUNCTION__, __LINE__);                  \
-                fprintf(log_file, "%-96s" fmt "\n", buf, ##__VA_ARGS__);                              \
-                fflush(log_file);                                                                     \
-                fclose(log_file);                                                                     \
-            }                                                                                         \
-        }                                                                                             \
+#define LOG(level, level_str, fmt, ...)                                                                         \
+    do {                                                                                                        \
+        if (log_level >= level) {                                                                               \
+            FILE *log_file = fopen(LOG_FILE_NAME, "a+");                                                        \
+            if (log_file) {                                                                                     \
+                char _log_buf[256] = {0};                                                                       \
+                struct tm tm_info;                                                                              \
+                struct timeval tv;                                                                              \
+                gettimeofday(&tv, NULL);                                                                        \
+                localtime_r(&tv.tv_sec, &tm_info);                                                              \
+                int pid = (int)getpid();                                                                        \
+                int tid = (int)syscall(SYS_gettid);                                                             \
+                snprintf(_log_buf, sizeof(_log_buf), "%04d-%02d-%02d %02d:%02d:%02d.%03ld [%d.%d] %s %s@%s:%d", \
+                         tm_info.tm_year + 1900, tm_info.tm_mon + 1, tm_info.tm_mday,                           \
+                         tm_info.tm_hour, tm_info.tm_min, tm_info.tm_sec, tv.tv_usec / 1000,                    \
+                         pid, tid, level_str, __FILENAME__, __FUNCTION__, __LINE__);                            \
+                fprintf(log_file, "%-96s" fmt "\n", _log_buf, ##__VA_ARGS__);                                   \
+                fflush(log_file);                                                                               \
+                fclose(log_file);                                                                               \
+            }                                                                                                   \
+        }                                                                                                       \
     } while (0)
 #endif
 
