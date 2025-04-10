@@ -7,6 +7,7 @@
 *.d
 
 # Object files
+obj/
 *.o
 *.ko
 *.obj
@@ -22,6 +23,7 @@
 *.pch
 
 # Libraries
+libs/
 *.lib
 *.a
 *.la

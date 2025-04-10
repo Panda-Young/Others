@@ -150,10 +150,13 @@ int main(int argc, char *argv[])
         check_info(&chime_config);
         set_speaker_pos(&chime_config, 0, 2.4f, 0.0f, 2.7f);
         set_speaker_pos(&chime_config, 1, -2.4f, 0.0f, 2.7f);
+        set_speaker_pos(&chime_config, 3, 2.4f, 0.0f, -1.0f);
+        set_speaker_pos(&chime_config, 4, -2.4f, 0.0f, -1.0f);
         printf("\n\nmodified data:\n");
         check_info(&chime_config);
         fseek(fp, 0, SEEK_SET);
         fwrite(&chime_config, sizeof(ChimeConfig_t), 1, fp);
+        fflush(fp);
         fclose(fp);
     }
 

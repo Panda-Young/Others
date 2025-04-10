@@ -40,10 +40,11 @@ typedef enum {
 #if defined(__ANDROID__)
 #define USE_ANDROID_LOG 0
 #endif
-#define USE_FILELOG 0
+#define USE_FILELOG 1
 
 #ifndef __FILENAME__
-#define __FILENAME__ (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1) : (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
+#define __FILENAME__ \
+    (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1) : (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))
 #endif
 
 extern const char *__PROGNAME;
@@ -67,7 +68,7 @@ extern slog2_buffer_t slog_buffer;
     do {                                                                                                     \
         if (slog_buffer != NULL && log_level >= level) {                                                     \
             if (include_context) {                                                                           \
-                slog2f(slog_buffer, CODE_MASK, code, "%s(%d): " fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+                slog2f(slog_buffer, CODE_MASK, code, "%d @%s: " fmt, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
             } else {                                                                                         \
                 slog2f(slog_buffer, CODE_MASK, code, fmt, ##__VA_ARGS__);                                    \
             }                                                                                                \
@@ -95,7 +96,7 @@ void __attribute__((constructor)) slog_buffer_init(void);
     do {                                                                                          \
         if (log_level >= level) {                                                                 \
             if (include_context) {                                                                \
-                slogf(_SLOGC_YOUNG, code, "%s(%d): " fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+                slogf(_SLOGC_YOUNG, code, "%d @%s: " fmt, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
             } else {                                                                              \
                 slogf(_SLOGC_YOUNG, code, fmt, ##__VA_ARGS__);                                    \
             }                                                                                     \
@@ -122,8 +123,8 @@ void __attribute__((constructor)) slog_buffer_init(void);
             if (include_context) {                                                     \
                 int pid = (int)getpid();                                               \
                 int tid = (int)syscall(SYS_gettid);                                    \
-                syslog(priority, "[%d.%d] %s@%s(%d): " fmt,                            \
-                       pid, tid, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+                syslog(priority, "[%d.%d] %s:%d @%s: " fmt,                            \
+                       pid, tid, __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
             } else {                                                                   \
                 syslog(priority, fmt, ##__VA_ARGS__);                                  \
             }                                                                          \
@@ -153,8 +154,8 @@ void __attribute__((destructor)) close_log_operation(void);
             if (include_context) {                                                                  \
                 int pid = (int)getpid();                                                            \
                 int tid = (int)syscall(SYS_gettid);                                                 \
-                __android_log_print(priority, LOG_TAG, "[%d.%d] %s@%s(%d): " fmt,                   \
-                                    pid, tid, __FILENAME__, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
+                __android_log_print(priority, LOG_TAG, "[%d.%d] %s:%d @%s: " fmt,                   \
+                                    pid, tid, __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
             } else {                                                                                \
                 __android_log_print(priority, LOG_TAG, fmt, ##__VA_ARGS__);                         \
             }                                                                                       \
@@ -175,25 +176,25 @@ extern FILE *log_file;
 
 #if defined(_WIN32) || defined(_WIN64)
 #if defined(__MINGW32__) || defined(__MINGW64__) || defined(_MSC_VER)
-#define LOG(level, include_context, level_str, fmt, ...)                                                   \
-    do {                                                                                                   \
-        if (log_file && log_level >= level) {                                                              \
-            SYSTEMTIME st = {0};                                                                           \
-            GetLocalTime(&st);                                                                             \
-            int pid = (int)GetCurrentProcessId();                                                          \
-            int tid = (int)GetCurrentThreadId();                                                           \
-            char _buf[1024] = {0};                                                                         \
-            if (include_context) {                                                                         \
-                snprintf(_buf, sizeof(_buf), "%04d-%02d-%02d %02d:%02d:%02d.%03d %s [%d.%d] %s %s@%s(%d)", \
-                         st.wYear, st.wMonth, st.wDay,                                                     \
-                         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,                               \
-                         __PROGNAME, pid, tid, level_str, __FILENAME__, __FUNCTION__, __LINE__);           \
-                fprintf(log_file, "%-96s" fmt "\n", _buf, ##__VA_ARGS__);                                  \
-            } else {                                                                                       \
-                fprintf(log_file, fmt "\n", ##__VA_ARGS__);                                                \
-            }                                                                                              \
-            fflush(log_file);                                                                              \
-        }                                                                                                  \
+#define LOG(level, include_context, level_str, fmt, ...)                                                             \
+    do {                                                                                                             \
+        if (log_file && log_level >= level) {                                                                        \
+            SYSTEMTIME st = {0};                                                                                     \
+            GetLocalTime(&st);                                                                                       \
+            int pid = (int)GetCurrentProcessId();                                                                    \
+            int tid = (int)GetCurrentThreadId();                                                                     \
+            char _log_buf_[1024] = {0};                                                                              \
+            if (include_context) {                                                                                   \
+                snprintf(_log_buf_, sizeof(_log_buf_), "%04d-%02d-%02d %02d:%02d:%02d.%03d %s [%d.%d] %s %s:%d @%s", \
+                         st.wYear, st.wMonth, st.wDay,                                                               \
+                         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,                                         \
+                         __PROGNAME, pid, tid, level_str, __FILENAME__, __LINE__, __FUNCTION__);                     \
+                fprintf(log_file, "%-96s" fmt "\n", _log_buf_, ##__VA_ARGS__);                                       \
+            } else {                                                                                                 \
+                fprintf(log_file, fmt "\n", ##__VA_ARGS__);                                                          \
+            }                                                                                                        \
+            fflush(log_file);                                                                                        \
+        }                                                                                                            \
     } while (0)
 #endif
 #elif defined(__linux__) || defined(__QNX__) || defined(__ANDROID__)
@@ -201,27 +202,27 @@ extern FILE *log_file;
 #include <sys/syscall.h>
 #include <sys/time.h>
 #include <unistd.h>
-#define LOG(level, include_context, level_str, fmt, args...)                                                \
-    do {                                                                                                    \
-        if (log_file && log_level >= level) {                                                               \
-            struct timeval tv = {0};                                                                        \
-            gettimeofday(&tv, NULL);                                                                        \
-            time_t time = tv.tv_sec;                                                                        \
-            struct tm *tm_info = localtime(&time);                                                          \
-            int pid = (int)getpid();                                                                        \
-            int tid = (int)syscall(SYS_gettid);                                                             \
-            char _buf[1024] = {0};                                                                          \
-            if (include_context) {                                                                          \
-                snprintf(_buf, sizeof(_buf), "%04d-%02d-%02d %02d:%02d:%02d.%06ld %s [%d.%d] %s %s@%s(%d)", \
-                         tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,                    \
-                         tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec, tv.tv_usec,                    \
-                         __PROGNAME, pid, tid, level_str, __FILENAME__, __FUNCTION__, __LINE__);            \
-                fprintf(log_file, "%-96s" fmt "\n", _buf, ##args);                                          \
-            } else {                                                                                        \
-                fprintf(log_file, "%s" fmt "\n", _buf, ##args);                                             \
-            }                                                                                               \
-            fflush(log_file);                                                                               \
-        }                                                                                                   \
+#define LOG(level, include_context, level_str, fmt, args...)                                                          \
+    do {                                                                                                              \
+        if (log_file && log_level >= level) {                                                                         \
+            struct timeval tv = {0};                                                                                  \
+            gettimeofday(&tv, NULL);                                                                                  \
+            time_t time = tv.tv_sec;                                                                                  \
+            struct tm *tm_info = localtime(&time);                                                                    \
+            int pid = (int)getpid();                                                                                  \
+            int tid = (int)syscall(SYS_gettid);                                                                       \
+            char _log_buf_[1024] = {0};                                                                               \
+            if (include_context) {                                                                                    \
+                snprintf(_log_buf_, sizeof(_log_buf_), "%04d-%02d-%02d %02d:%02d:%02d.%06ld %s [%d.%d] %s %s:%d @%s", \
+                         tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,                              \
+                         tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec, tv.tv_usec,                              \
+                         __PROGNAME, pid, tid, level_str, __FILENAME__, __LINE__, __FUNCTION__);                      \
+                fprintf(log_file, "%-96s" fmt "\n", _log_buf_, ##args);                                               \
+            } else {                                                                                                  \
+                fprintf(log_file, "%s" fmt "\n", _log_buf_, ##args);                                                  \
+            }                                                                                                         \
+            fflush(log_file);                                                                                         \
+        }                                                                                                             \
     } while (0)
 #endif
 
@@ -251,44 +252,44 @@ void __attribute__((destructor)) close_log_file(void);
 #else // print log to console
 #if defined(_WIN32) || defined(_WIN64)
 #if defined(__MINGW32__) || defined(__MINGW64__)
-#define LOG(level, color, include_context, fmt, ...)                                                    \
-    do {                                                                                                \
-        if (log_level >= level) {                                                                       \
-            SYSTEMTIME st = {0};                                                                        \
-            GetLocalTime(&st);                                                                          \
-            int pid = (int)GetCurrentProcessId();                                                       \
-            int tid = (int)GetCurrentThreadId();                                                        \
-            char _buf[1024] = {0};                                                                      \
-            if (include_context) {                                                                      \
-                snprintf(_buf, sizeof(_buf), "%04d-%02d-%02d %02d:%02d:%02d.%03d %s [%d.%d] %s@%s(%d)", \
-                         st.wYear, st.wMonth, st.wDay,                                                  \
-                         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,                            \
-                         __PROGNAME, pid, tid, __FILENAME__, __FUNCTION__, __LINE__);                   \
-                printf(color "%-96s" fmt "\e[0m\n", _buf, ##__VA_ARGS__);                               \
-            } else {                                                                                    \
-                printf(color fmt "\e[0m\n", ##__VA_ARGS__);                                             \
-            }                                                                                           \
-        }                                                                                               \
+#define LOG(level, color, include_context, fmt, ...)                                                              \
+    do {                                                                                                          \
+        if (log_level >= level) {                                                                                 \
+            SYSTEMTIME st = {0};                                                                                  \
+            GetLocalTime(&st);                                                                                    \
+            int pid = (int)GetCurrentProcessId();                                                                 \
+            int tid = (int)GetCurrentThreadId();                                                                  \
+            char _log_buf_[1024] = {0};                                                                           \
+            if (include_context) {                                                                                \
+                snprintf(_log_buf_, sizeof(_log_buf_), "%04d-%02d-%02d %02d:%02d:%02d.%03d %s [%d.%d] %s:%d @%s", \
+                         st.wYear, st.wMonth, st.wDay,                                                            \
+                         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,                                      \
+                         __PROGNAME, pid, tid, __FILENAME__, __LINE__, __FUNCTION__);                             \
+                printf(color "%-96s" fmt "\e[0m\n", _log_buf_, ##__VA_ARGS__);                                    \
+            } else {                                                                                              \
+                printf(color fmt "\e[0m\n", ##__VA_ARGS__);                                                       \
+            }                                                                                                     \
+        }                                                                                                         \
     } while (0)
 #else
-#define LOG(level, color, include_context, fmt, ...)                                                    \
-    do {                                                                                                \
-        if (log_level >= level) {                                                                       \
-            SYSTEMTIME st = {0};                                                                        \
-            GetLocalTime(&st);                                                                          \
-            int pid = (int)GetCurrentProcessId();                                                       \
-            int tid = (int)GetCurrentThreadId();                                                        \
-            char _buf[1024] = {0};                                                                      \
-            if (include_context) {                                                                      \
-                snprintf(_buf, sizeof(_buf), "%04d-%02d-%02d %02d:%02d:%02d.%03d %s [%d.%d] %s@%s(%d)", \
-                         st.wYear, st.wMonth, st.wDay,                                                  \
-                         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,                            \
-                         __PROGNAME, pid, tid, __FILENAME__, __FUNCTION__, __LINE__);                   \
-                printf(color "%-96s" fmt "\x1b[0m\n", _buf, ##__VA_ARGS__);                             \
-            } else {                                                                                    \
-                printf(color fmt "\x1b[0m\n", ##__VA_ARGS__);                                           \
-            }                                                                                           \
-        }                                                                                               \
+#define LOG(level, color, include_context, fmt, ...)                                                              \
+    do {                                                                                                          \
+        if (log_level >= level) {                                                                                 \
+            SYSTEMTIME st = {0};                                                                                  \
+            GetLocalTime(&st);                                                                                    \
+            int pid = (int)GetCurrentProcessId();                                                                 \
+            int tid = (int)GetCurrentThreadId();                                                                  \
+            char _log_buf_[1024] = {0};                                                                           \
+            if (include_context) {                                                                                \
+                snprintf(_log_buf_, sizeof(_log_buf_), "%04d-%02d-%02d %02d:%02d:%02d.%03d %s [%d.%d] %s:%d @%s", \
+                         st.wYear, st.wMonth, st.wDay,                                                            \
+                         st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,                                      \
+                         __PROGNAME, pid, tid, __FILENAME__, __LINE__, __FUNCTION__);                             \
+                printf(color "%-96s" fmt "\x1b[0m\n", _log_buf_, ##__VA_ARGS__);                                  \
+            } else {                                                                                              \
+                printf(color fmt "\x1b[0m\n", ##__VA_ARGS__);                                                     \
+            }                                                                                                     \
+        }                                                                                                         \
     } while (0)
 #endif
 #else
@@ -297,26 +298,26 @@ void __attribute__((destructor)) close_log_file(void);
 #include <sys/syscall.h>
 #include <sys/time.h>
 #include <unistd.h>
-#define LOG(level, color, include_context, fmt, args...)                                                 \
-    do {                                                                                                 \
-        if (log_level >= level) {                                                                        \
-            struct timeval tv = {0};                                                                     \
-            gettimeofday(&tv, NULL);                                                                     \
-            time_t time = tv.tv_sec;                                                                     \
-            struct tm *tm_info = localtime(&time);                                                       \
-            int pid = (int)getpid();                                                                     \
-            int tid = (int)syscall(SYS_gettid);                                                          \
-            char _buf[1024] = {0};                                                                       \
-            if (include_context) {                                                                       \
-                snprintf(_buf, sizeof(_buf), "%04d-%02d-%02d %02d:%02d:%02d.%06ld %s [%d.%d] %s@%s(%d)", \
-                         tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,                 \
-                         tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec, tv.tv_usec,                 \
-                         __PROGNAME, pid, tid, __FILENAME__, __FUNCTION__, __LINE__);                    \
-                printf(color "%-96s" fmt "\e[0m\n", _buf, ##args);                                       \
-            } else {                                                                                     \
-                printf(color fmt "\e[0m\n", ##args);                                                     \
-            }                                                                                            \
-        }                                                                                                \
+#define LOG(level, color, include_context, fmt, args...)                                                           \
+    do {                                                                                                           \
+        if (log_level >= level) {                                                                                  \
+            struct timeval tv = {0};                                                                               \
+            gettimeofday(&tv, NULL);                                                                               \
+            time_t time = tv.tv_sec;                                                                               \
+            struct tm *tm_info = localtime(&time);                                                                 \
+            int pid = (int)getpid();                                                                               \
+            int tid = (int)syscall(SYS_gettid);                                                                    \
+            char _log_buf_[1024] = {0};                                                                            \
+            if (include_context) {                                                                                 \
+                snprintf(_log_buf_, sizeof(_log_buf_), "%04d-%02d-%02d %02d:%02d:%02d.%06ld %s [%d.%d] %s:%d @%s", \
+                         tm_info->tm_year + 1900, tm_info->tm_mon + 1, tm_info->tm_mday,                           \
+                         tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec, tv.tv_usec,                           \
+                         __PROGNAME, pid, tid, __FILENAME__, __LINE__, __FUNCTION__);                              \
+                printf(color "%-96s" fmt "\e[0m\n", _log_buf_, ##args);                                            \
+            } else {                                                                                               \
+                printf(color fmt "\e[0m\n", ##args);                                                               \
+            }                                                                                                      \
+        }                                                                                                          \
     } while (0)
 #endif
 #endif
