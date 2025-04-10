@@ -57,10 +57,10 @@ typedef enum {
                     int pid = (int)GetCurrentProcessId();                                                          \
                     int tid = (int)GetCurrentThreadId();                                                           \
                     char _log_buf[256] = {0};                                                                      \
-                    snprintf(_log_buf, sizeof(_log_buf), "%04d-%02d-%02d %02d:%02d:%02d.%03d [%d.%d] %s %s@%s:%d", \
+                    snprintf(_log_buf, sizeof(_log_buf), "%04d-%02d-%02d %02d:%02d:%02d.%03d [%d.%d] %s %s:%d @%s", \
                              st.wYear, st.wMonth, st.wDay,                                                         \
                              st.wHour, st.wMinute, st.wSecond, st.wMilliseconds,                                   \
-                             pid, tid, level_str, __FILENAME__, __FUNCTION__, __LINE__);                           \
+                             pid, tid, level_str, __FILENAME__, __LINE__, __FUNCTION__);                           \
                     fprintf(log_file, "%-96s" fmt "\n", _log_buf, ##__VA_ARGS__);                                  \
                     fflush(log_file);                                                                              \
                     fclose(log_file);                                                                              \
@@ -81,10 +81,10 @@ typedef enum {
                 localtime_r(&tv.tv_sec, &tm_info);                                                              \
                 int pid = (int)getpid();                                                                        \
                 int tid = (int)syscall(SYS_gettid);                                                             \
-                snprintf(_log_buf, sizeof(_log_buf), "%04d-%02d-%02d %02d:%02d:%02d.%03ld [%d.%d] %s %s@%s:%d", \
+                snprintf(_log_buf, sizeof(_log_buf), "%04d-%02d-%02d %02d:%02d:%02d.%03ld [%d.%d] %s %s:%d @%s", \
                          tm_info.tm_year + 1900, tm_info.tm_mon + 1, tm_info.tm_mday,                           \
                          tm_info.tm_hour, tm_info.tm_min, tm_info.tm_sec, tv.tv_usec / 1000,                    \
-                         pid, tid, level_str, __FILENAME__, __FUNCTION__, __LINE__);                            \
+                         pid, tid, level_str, __FILENAME__, __LINE__, __FUNCTION__);                            \
                 fprintf(log_file, "%-96s" fmt "\n", _log_buf, ##__VA_ARGS__);                                   \
                 fflush(log_file);                                                                               \
                 fclose(log_file);                                                                               \
