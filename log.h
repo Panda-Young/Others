@@ -148,18 +148,16 @@ void __attribute__((destructor)) close_log_operation(void);
 #include <sys/syscall.h>
 #include <unistd.h>
 #define LOG_TAG "young"
-#define LOG(level, priority, include_context, fmt, ...)                                             \
-    do {                                                                                            \
-        if (log_level >= level) {                                                                   \
-            if (include_context) {                                                                  \
-                int pid = (int)getpid();                                                            \
-                int tid = (int)syscall(SYS_gettid);                                                 \
-                __android_log_print(priority, LOG_TAG, "[%d.%d] %s:%d @%s: " fmt,                   \
-                                    pid, tid, __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
-            } else {                                                                                \
-                __android_log_print(priority, LOG_TAG, fmt, ##__VA_ARGS__);                         \
-            }                                                                                       \
-        }                                                                                           \
+#define LOG(level, priority, include_context, fmt, ...)                                   \
+    do {                                                                                  \
+        if (log_level >= level) {                                                         \
+            if (include_context) {                                                        \
+                __android_log_print(priority, LOG_TAG, "%s:%d @%s: " fmt,                 \
+                                    __FILENAME__, __LINE__, __FUNCTION__, ##__VA_ARGS__); \
+            } else {                                                                      \
+                __android_log_print(priority, LOG_TAG, fmt, ##__VA_ARGS__);               \
+            }                                                                             \
+        }                                                                                 \
     } while (0)
 
 #define LOGD2(fmt, ...) LOG(LOG_LEVEL_DEBUG, ANDROID_LOG_DEBUG, 0, fmt, ##__VA_ARGS__)
