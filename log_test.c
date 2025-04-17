@@ -13,13 +13,13 @@ int main()
     char c = 'A';
 
     LOGD2("This is a debug log without context.");
-    LOGD("This is a debug log with value: %s", &c);
+    LOGD("This is a debug log with value: %1s", &c);
     LOGI2("This is an info log without context.");
     LOGI("This is an info log with value: %d", c);
     LOGW2("This is a warning log without context.");
     LOGW("This is a warning log with value: %c", c);
     LOGE2("This is an error log without context.");
-    LOGE("This is an error log with value: %p", &c);
+    LOGE("This is an error log with value: 0x%p", &c);
 
     return 0;
 }

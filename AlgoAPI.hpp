@@ -12,12 +12,10 @@
 #include <stdint.h>
 
 typedef enum algo_param {
-    SET_PARAM_START = 0,
-    SET_PARAM1,
+    SET_PARAM1 = 1,
     SET_PARAM2,
     SET_PARAM3,
     SET_PARAM4,
-    SET_PARAM_END,
 } algo_param_t;
 
 namespace test

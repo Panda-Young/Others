@@ -9,39 +9,39 @@
 #include "algo_example.h"
 #include "log.h"
 
-#define VERSION "0.1.0"
+#define VERSION "0.1.2"
 #define MAX_BUF_SIZE 1024
 
 typedef struct algo_handle {
     char param1;
-    int param2;
+    float param2;
     char param3[MAX_BUF_SIZE];
     float *param4;
 } algo_handle_t, *p_algo_handle_t;
 
-__attribute__((constructor)) void algo_enter()
+static int validate_param_size(int received_size, int expected_size, const char *param_name)
 {
-    LOGI("algo_enter");
-}
-
-__attribute__((destructor)) void algo_exit()
-{
-    LOGI("algo_exit");
+    if (received_size != expected_size) {
+        LOGE("Received param size %d Bytes for %s is not correct. Expected size is %d",
+                   received_size, param_name, expected_size);
+        return E_PARAM_SIZE_INVALID;
+    }
+    return E_OK;
 }
 
 int get_algo_version(char *version)
 {
     if (version == NULL) {
         LOGE("version is NULL");
-        return -1;
+        return E_VERSION_BUFFER_NULL;
     }
     strcpy(version, VERSION);
-    return 0;
+    return E_OK;
 }
 
 void *algo_init()
 {
-    void *algo_handle = (p_algo_handle_t)malloc(sizeof(algo_handle_t));
+    p_algo_handle_t algo_handle = (p_algo_handle_t)malloc(sizeof(algo_handle_t));
     if (algo_handle == NULL) {
         LOGE("allocate for algo_handle_t failed");
         return NULL;
@@ -63,119 +63,144 @@ void algo_deinit(void *algo_handle)
         algo_handle_ptr->param4 = NULL;
     }
     free(algo_handle);
-    algo_handle = NULL;
     LOGI("algo_deinit OK");
 }
 
-int algo_set_param(void *algo_handle, algo_param_t cmd, void *param, uint32_t param_size)
+int algo_set_param(void *algo_handle, algo_param_t cmd, void *param, int param_size)
 {
     if (algo_handle == NULL) {
         LOGE("algo_handle is NULL");
-        return -1;
+        return E_ALGO_HANDLE_NULL;
     }
     if (param == NULL) {
         LOGE("param is NULL");
-        return -1;
+        return E_PARAM_BUFFER_NULL;
     }
 
     p_algo_handle_t algo_handle_ptr = (p_algo_handle_t)algo_handle;
+    int ret = E_OK;
     switch (cmd) {
-    case SET_PARAM1: {
-        if (param_size != sizeof(char)) {
-            LOGE("param_size is not correct");
-            return -1;
+    case ALGO_PARAM1:
+        ret = validate_param_size(param_size, sizeof(char), "param1");
+        if (ret == E_OK) {
+            algo_handle_ptr->param1 = *(char *)param;
+            LOGI("set param1: %c", algo_handle_ptr->param1);
         }
-        algo_handle_ptr->param1 = *(char *)param;
-        LOGI("set param1: %c", algo_handle_ptr->param1);
         break;
-    }
-    case SET_PARAM2: {
-        if (param_size != sizeof(int)) {
-            LOGE("param_size is not correct");
-            return -1;
+    case ALGO_PARAM2:
+        ret = validate_param_size(param_size, sizeof(float), "param2");
+        if (ret == E_OK) {
+            algo_handle_ptr->param2 = *(float *)param;
+            LOGI("set param2: %.3f", algo_handle_ptr->param2);
         }
-        algo_handle_ptr->param2 = *(int *)param;
-        LOGI("set param2: %d", algo_handle_ptr->param2);
         break;
-    }
-    case SET_PARAM3: {
+    case ALGO_PARAM3:
         if (param_size > MAX_BUF_SIZE) {
-            LOGE("param_size is too large");
-            return -1;
+            LOGE("Received param size: %d Bytes is too large. Max size is %u",
+                       param_size, MAX_BUF_SIZE);
+            return E_PARAM_SIZE_INVALID;
         }
         memset(algo_handle_ptr->param3, 0, MAX_BUF_SIZE);
         memcpy(algo_handle_ptr->param3, param, param_size);
         LOGI("set param3: %s", algo_handle_ptr->param3);
         break;
-    }
-    case SET_PARAM4: {
+    case ALGO_PARAM4:
         if (param_size > MAX_BUF_SIZE) {
-            LOGE("param_size is too large");
-            return -1;
+            LOGE("Received param size: %d Bytes is too large. Max size is %u",
+                       param_size, MAX_BUF_SIZE);
+            return E_PARAM_SIZE_INVALID;
         }
         algo_handle_ptr->param4 = (float *)malloc(param_size);
         if (algo_handle_ptr->param4 == NULL) {
-            LOGE("allocate for param4 failed");
-            return -1;
+            LOGE("allocate %d Bytes for param4 failed", param_size);
+            return E_ALLOCATE_FAILED;
         }
         memcpy(algo_handle_ptr->param4, param, param_size);
         break;
-    }
     default:
-        LOGE("cmd is invalid");
-        return -1;
+        LOGE("cmd %d is invalid", cmd);
+        return E_PARAM_OUT_OF_RANGE;
     }
-    return 0;
+    return ret;
 }
 
-int algo_process(void *algo_handle, void *input, void *output, int block_size)
+int algo_get_param(void *algo_handle, algo_param_t cmd, void *param, int param_size)
 {
     if (algo_handle == NULL) {
         LOGE("algo_handle is NULL");
-        return -1;
+        return E_ALGO_HANDLE_NULL;
+    }
+    if (param == NULL) {
+        LOGE("param is NULL");
+        return E_PARAM_BUFFER_NULL;
+    }
+
+    p_algo_handle_t algo_handle_ptr = (p_algo_handle_t)algo_handle;
+    int ret = E_OK;
+    switch (cmd) {
+    case ALGO_PARAM1:
+        ret = validate_param_size(param_size, sizeof(char), "param1");
+        if (ret == E_OK) {
+            *(char *)param = algo_handle_ptr->param1;
+            LOGI("get param1: %c", algo_handle_ptr->param1);
+        }
+        break;
+    case ALGO_PARAM2:
+        ret = validate_param_size(param_size, sizeof(float), "param2");
+        if (ret == E_OK) {
+            *(float *)param = algo_handle_ptr->param2;
+            LOGI("get param2: %.1f", algo_handle_ptr->param2);
+        }
+        break;
+    case ALGO_PARAM3:
+        if (param_size > MAX_BUF_SIZE) {
+            LOGE("param_size is too large");
+            return E_PARAM_SIZE_INVALID;
+        }
+        memcpy(param, algo_handle_ptr->param3, param_size);
+        LOGI("get param3: %s", algo_handle_ptr->param3);
+        break;
+    case ALGO_PARAM4:
+        if (param_size > MAX_BUF_SIZE) {
+            LOGE("param_size: %d is too large than MAX_BUF_SIZE %d", param_size, MAX_BUF_SIZE);
+            return E_PARAM_SIZE_INVALID;
+        }
+        memcpy(param, algo_handle_ptr->param4, param_size);
+        break;
+    default:
+        LOGE("cmd is invalid");
+        return E_PARAM_OUT_OF_RANGE;
+    }
+    return ret;
+}
+
+int algo_process(void *algo_handle, const float *input, float *output, int block_size)
+{
+    if (algo_handle == NULL) {
+        return E_ALGO_HANDLE_NULL;
     }
     if (input == NULL) {
         LOGE("input is NULL");
-        return -1;
+        return E_PARAM_BUFFER_NULL;
     }
     if (output == NULL) {
         LOGE("output is NULL");
-        return -1;
+        return E_PARAM_BUFFER_NULL;
     }
     if (block_size <= 0) {
         LOGE("block_size is not correct");
-        return -1;
+        return E_PARAM_SIZE_INVALID;
     }
     p_algo_handle_t algo_handle_ptr = (p_algo_handle_t)algo_handle;
- 
-    // memcpy(output, input, block_size);
 
-    int *input_buffer = (int *)input;
-    int *output_buffer = (int *)output;
-
-    for (int i = 0; i < block_size / sizeof(int); i++) {
-        int result = input_buffer[i] * algo_handle_ptr->param2;
-        if (result > INT_MAX) {
-            output_buffer[i] = INT_MAX;
-        } else if (result < INT_MIN) {
-            output_buffer[i] = INT_MIN;
-        } else {
-            output_buffer[i] = result;
-        }
+    if (algo_handle_ptr->param2 == 0.0f) {
+        memcpy(output, input, block_size * sizeof(float));
+        return E_OK;
     }
 
-    return 0;
-}
+    for (int i = 0; i < block_size; i++) {
+        output[i] = input[i] * 1;
+    }
 
-/*Compile Command:
-    Unix/Linux:
-        gcc -shared -fPIC -Wall algo_example.c log.c -o libalgo_example.so
-    Windows:
-        gcc -shared -Wall algo_example.c log.c -o libalgo_example.dll
-Compile options：
-    `-shared`选项告诉编译器生成一个动态链接库
-    `-fPIC`选项告诉编译器生成位置无关的代码（Position Independent Code，PIC）。
-        这是一种特殊类型的机器代码，它可以在内存中任何位置执行。动态链接库在加载时可能会被加载到内存的任意位置
-        `-fpic`生成的代码对全局偏移表（Global Offset Table，GOT）的大小有限制，而`-fPIC`生成的代码没有这个限制。
-        在Windows平台上，所有的代码默认都是位置无关的，因此这两个选项在Windows平台上没有效果。
-*/
+    return E_OK;
+}

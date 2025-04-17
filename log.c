@@ -80,7 +80,7 @@ __attribute__((destructor)) void close_log_file()
 #endif
 #endif
 
-const char *__PROGNAME = NULL;
+const char *__PROGNAME__ = NULL;
 const char *__PROGPATH = NULL;
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -90,7 +90,7 @@ __attribute__((constructor)) void get_exe_path()
     char path[1024] = {0};
     GetModuleFileName(NULL, path, sizeof(path));
     __PROGPATH = strdup(path);
-    __PROGNAME = strrchr(__PROGPATH, '\\') ? strrchr(__PROGPATH, '\\') + 1 : __PROGPATH;
+    __PROGNAME__ = strrchr(__PROGPATH, '\\') ? strrchr(__PROGPATH, '\\') + 1 : __PROGPATH;
 }
 #elif defined(_MSC_VER) // only support DEBUG mode
 #pragma section(".CRT$XCU", read)
@@ -124,14 +124,14 @@ INITIALIZER(get_exe_path)
     if (result == 0 || result >= sizeof(path)) {
         // Handle error
         __PROGPATH = NULL;
-        __PROGNAME = NULL;
+        __PROGNAME__ = NULL;
     } else {
         size_t path_len = sizeof(path) / 2;
         for (size_t pp = 0; pp < path_len / 2; pp++) {
             path[pp] = path[pp * 2];
         }
         __PROGPATH = _strdup(path);
-        __PROGNAME = strrchr(__PROGPATH, '\\') ? strrchr(__PROGPATH, '\\') + 1 : __PROGPATH;
+        __PROGNAME__ = strrchr(__PROGPATH, '\\') ? strrchr(__PROGPATH, '\\') + 1 : __PROGPATH;
     }
 }
 #pragma section(".CRT$XTU", read)
@@ -169,7 +169,7 @@ __attribute__((constructor)) void get_exe_path()
         exit(EXIT_FAILURE);
     }
     __PROGPATH = resolved_path;
-    __PROGNAME = strrchr(__PROGPATH, '/') ? strrchr(__PROGPATH, '/') + 1 : __PROGPATH;
+    __PROGNAME__ = strrchr(__PROGPATH, '/') ? strrchr(__PROGPATH, '/') + 1 : __PROGPATH;
 }
 #endif
 
