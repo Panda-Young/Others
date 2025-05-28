@@ -97,5 +97,6 @@ int main() {
     return 0;
 }
 
-// Compile with:
-    cl cpp_reduce_db.cpp /I C:\Users\young\Desktop\onnxruntime-win-x64-1.17.0\include /link /LIBPATH:C:\Users\young\Desktop\onnxruntime-win-x64-1.17.0\lib onnxruntime.lib && cpp_reduce_db.exe
+/* Compile with:
+    cl test_reduce_db_onnx.cpp /I C:\Users\young\Desktop\onnxruntime-win-x64-1.17.0\include /link /LIBPATH:C:\Users\young\Desktop\onnxruntime-win-x64-1.17.0\lib onnxruntime.lib && test_reduce_db_onnx.exe
+*/
