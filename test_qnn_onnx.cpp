@@ -253,10 +253,10 @@ int main(int argc, char* argv[]) {
 adb shell mkdir -p /data/local/tmp/qnn_test
 adb push test_qnn_onnx /data/local/tmp/qnn_test/
 adb shell chmod +x /data/local/tmp/qnn_test/test_qnn_onnx
-adb push libonnxruntime.so /data/local/tmp/qnn_test/
+adb push "C:\Users\60061804\Desktop\onnxruntime-android-1.22.0\jni\arm64-v8a\libonnxruntime.so" /data/local/tmp/qnn_test/
 adb push reduce_15db_fp16.onnx /data/local/tmp/qnn_test/
-adb push libQnnHtp.so /data/local/tmp/qnn_test/
-adb push libQnnSystem.so /data/local/tmp/qnn_test/
+adb push "C:\Qualcomm\AIStack\QAIRT\2.31.0.250130\lib\aarch64-android\libQnnHtp.so" /data/local/tmp/qnn_test/
+adb push "C:\Qualcomm\AIStack\QAIRT\2.31.0.250130\lib\aarch64-android\libQnnSystem.so" /data/local/tmp/qnn_test/
 adb shell
     cd /data/local/tmp/qnn_test
     export LD_LIBRARY_PATH=.
