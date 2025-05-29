@@ -242,9 +242,10 @@ int main(int argc, char* argv[]) {
 }
 
 /* Compile with:
-    C:\Users\young\AppData\Local\Android\Sdk\ndk\android-ndk-r27c\toolchains\llvm\prebuilt\windows-x86_64\bin\aarch64-linux-android29-clang++ ^
-        -IC:\Users\young\Desktop\onnxruntime-android-1.21.1\headers ^
-        -LC:\Users\young\Desktop\onnxruntime-android-1.21.1\jni\arm64-v8a -lonnxruntime ^
+    D:\ProgramFiles\SDK\ndk\27.0.12077973\toolchains\llvm\prebuilt\windows-x86_64\bin\aarch64-linux-android29-clang++ ^
+        -v ^
+        -IC:\Users\60061804\Desktop\onnxruntime-android-1.22.0\headers ^
+        -LC:\Users\60061804\Desktop\onnxruntime-android-1.22.0\jni\arm64-v8a -lonnxruntime ^
         -lz -llog -landroid ^
         test_qnn_onnx.cpp -o test_qnn_onnx
 */
