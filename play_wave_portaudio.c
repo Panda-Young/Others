@@ -18,22 +18,22 @@
  *   play_wave_portaudio.exe <wav_file_path>
  */
 
+#include "algo_example.h"
+#include "audio_async_blocking.h"
+#include "portaudio.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
-#include "portaudio.h"
-#include "audio_async_blocking.h"
-#include "algo_example.h"
 
-#define BLOCK_SIZE 1024  // Number of samples per block (not frames!)
+#define BLOCK_SIZE 1024 // Number of samples per block (not frames!)
 
 // WAV file header for 16-bit PCM
 typedef struct {
-    char     riff[4];
+    char riff[4];
     uint32_t chunk_size;
-    char     wave[4];
-    char     fmt[4];
+    char wave[4];
+    char fmt[4];
     uint32_t fmt_length;
     uint16_t audio_format;
     uint16_t channels;
@@ -41,26 +41,28 @@ typedef struct {
     uint32_t byte_rate;
     uint16_t block_align;
     uint16_t bits_per_sample;
-    char     data[4];
+    char data[4];
     uint32_t data_size;
 } WAVHeader;
 
 // Process a block of audio samples (in-place)
 // sampleCount = number of int16_t samples (not frames; for stereo: frames*2)
-void process_block(int16_t* samples, size_t sampleCount) {
+void process_block(int16_t *samples, size_t sampleCount)
+{
     for (size_t i = 0; i < sampleCount; ++i) {
         // Example: halve the volume
         samples[i] /= 2;
     }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
     if (argc < 2) {
         printf("Usage: %s <wav_file>\n", argv[0]);
         return 1;
     }
-    const char* filename = argv[1];
-    FILE* file = fopen(filename, "rb");
+    const char *filename = argv[1];
+    FILE *file = fopen(filename, "rb");
     if (!file) {
         printf("[ERROR] Failed to open file: %s\n", filename);
         return 1;
@@ -107,7 +109,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Open PortAudio output stream
-    PaStream* stream;
+    PaStream *stream;
     PaStreamParameters outputParams;
     outputParams.device = Pa_GetDefaultOutputDevice();
     if (outputParams.device == paNoDevice) {
@@ -129,8 +131,7 @@ int main(int argc, char* argv[]) {
         BLOCK_SIZE / samplesPerFrame, // frames per buffer
         paClipOff,
         NULL,
-        NULL
-    );
+        NULL);
     if (paErr != paNoError) {
         printf("[ERROR] Failed to open PortAudio stream: %s\n", Pa_GetErrorText(paErr));
         Pa_Terminate();
@@ -149,7 +150,7 @@ int main(int argc, char* argv[]) {
     printf("[INFO] Started audio playback.\n");
 
     // Allocate buffer for one block
-    int16_t* block = (int16_t*)malloc(BLOCK_SIZE * sizeof(int16_t));
+    int16_t *block = (int16_t *)malloc(BLOCK_SIZE * sizeof(int16_t));
     if (!block) {
         printf("[ERROR] Out of memory for block buffer.\n");
         Pa_StopStream(stream);
@@ -159,10 +160,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    void * ctx = audio_async_create();
+    void *ctx = audio_async_create();
     float *in_buffer = (float *)malloc(BLOCK_SIZE * sizeof(float));
     float *out_buffer = (float *)malloc(BLOCK_SIZE * sizeof(float));
-
 
     // Playback loop (not repeating, plays WAV file once)
     size_t samplesReadTotal = 0;
