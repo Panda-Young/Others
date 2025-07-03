@@ -23,6 +23,8 @@
 #include <stdint.h>
 #include <string.h>
 #include "portaudio.h"
+#include "audio_async_blocking.h"
+#include "algo_example.h"
 
 #define BLOCK_SIZE 1024  // Number of samples per block (not frames!)
 
@@ -157,6 +159,11 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    void * ctx = audio_async_create();
+    float *in_buffer = (float *)malloc(BLOCK_SIZE * sizeof(float));
+    float *out_buffer = (float *)malloc(BLOCK_SIZE * sizeof(float));
+
+
     // Playback loop (not repeating, plays WAV file once)
     size_t samplesReadTotal = 0;
     while (samplesReadTotal < totalSamples) {
@@ -177,7 +184,14 @@ int main(int argc, char* argv[]) {
         }
 
         // Process the block
-        process_block(block, actuallyRead);
+        // process_block(block, actuallyRead);
+        for (size_t i = 0; i < actuallyRead; i++) {
+            in_buffer[i] = (float)block[i] / 32768.0f;
+        }
+        audio_async_process(ctx, in_buffer, out_buffer, actuallyRead);
+        for (size_t i = 0; i < actuallyRead; i++) {
+            block[i] = (int16_t)(out_buffer[i] * 32768.0f);
+        }
 
         // Write to PortAudio stream
         paErr = Pa_WriteStream(stream, block, actuallyRead / samplesPerFrame);
@@ -198,6 +212,9 @@ int main(int argc, char* argv[]) {
     Pa_CloseStream(stream);
     Pa_Terminate();
     fclose(file);
+    audio_async_destroy(ctx);
+    free(in_buffer);
+    free(out_buffer);
 
     return 0;
 }
