@@ -63,6 +63,4 @@ dkms.conf
 
 # test files
 test_dir/
-test.c
-test.cpp
-test.h
+test.*
