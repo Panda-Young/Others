@@ -367,3 +367,11 @@ int main(int argc, char *argv[])
     printf("[SUCCESS] Playback finished\n");
     return 0;
 }
+
+/* Compile Command:
+    Linux:
+        gcc portAudio_play_wav.c  -lportaudio -o portAudio_play_wav
+    Windows:
+        call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+        cl portAudio_play_wav.c /link /LIBPATH:"C:\Users\young\Workspace\VisualStudioProjects\portaudio\msvc\x64\Release\" portaudio_x64.lib
+*/
