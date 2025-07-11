@@ -8,6 +8,7 @@
 
 #include "algo_example.h"
 #include "log.h"
+#include <math.h>
 
 #define VERSION "0.1.2"
 #define MAX_BUF_SIZE 1024
@@ -18,6 +19,10 @@ typedef struct algo_handle {
     char param3[MAX_BUF_SIZE];
     float *param4;
 } algo_handle_t, *p_algo_handle_t;
+
+float dBToGain(float dbValue) {
+  return (dbValue == 0.0f) ? 1.0f : powf(10.0f, dbValue / 20.0f);
+}
 
 static int validate_param_size(int received_size, int expected_size, const char *param_name)
 {
@@ -198,8 +203,9 @@ int algo_process(void *algo_handle, const float *input, float *output, int block
         return E_OK;
     }
 
+    float gain = dBToGain(algo_handle_ptr->param2);
     for (int i = 0; i < block_size; i++) {
-        output[i] = input[i] * 1;
+        output[i] = input[i] * gain;
     }
 
     return E_OK;
