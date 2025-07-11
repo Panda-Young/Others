@@ -38,7 +38,7 @@ typedef enum {
 #define USE_LINUX_SYSLOG 0
 #endif
 #if defined(__ANDROID__)
-#define USE_ANDROID_LOG 0
+#define USE_ANDROID_LOGCAT 0
 #endif
 #define USE_FILELOG 0
 
@@ -143,7 +143,7 @@ void __attribute__((constructor)) slog_buffer_init(void);
 void __attribute__((constructor)) open_log_operation(void);
 void __attribute__((destructor)) close_log_operation(void);
 
-#elif USE_ANDROID_LOG
+#elif USE_ANDROID_LOGCAT
 #include <android/log.h>
 #include <sys/syscall.h>
 #include <unistd.h>
