@@ -373,5 +373,7 @@ int main(int argc, char *argv[])
         gcc portAudio_play_wav.c  -lportaudio -o portAudio_play_wav
     Windows:
         call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
-        cl portAudio_play_wav.c /link /LIBPATH:"C:\Users\young\Workspace\VisualStudioProjects\portaudio\msvc\x64\Release\" portaudio_x64.lib
+        cl portAudio_play_wav.c ^
+        /I "portaudio-19.7.0\include" ^
+        /link /LIBPATH:"portaudio-19.7.0\libs\x64\Release" portaudio_x64.lib
 */

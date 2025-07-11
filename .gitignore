@@ -67,3 +67,4 @@ test.*
 
 # 3rd party libraries
 !realtime_play/android/oboe_test/oboe-1.9.3/libs
+!realtime_play/portaudio-19.7.0/libs
