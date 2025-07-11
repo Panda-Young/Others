@@ -1,9 +1,9 @@
 #include "portaudio.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
 
 // WAV file chunk identifiers
 #define RIFF_HEADER "RIFF"
@@ -39,13 +39,13 @@ static int paCallback(
     const void *input,
     void *output,
     unsigned long frameCount,
-    const PaStreamCallbackTimeInfo* timeInfo,
+    const PaStreamCallbackTimeInfo *timeInfo,
     PaStreamCallbackFlags statusFlags,
-    void *userData
-) {
-    AudioData *ctx = (AudioData*)userData;
-    unsigned char *out = (unsigned char*)output;
-    
+    void *userData)
+{
+    AudioData *ctx = (AudioData *)userData;
+    unsigned char *out = (unsigned char *)output;
+
     // Calculate bytes per frame
     int bytesPerFrame = (ctx->format.bitsPerSample / 8) * ctx->format.channels;
     size_t bytesToCopy = frameCount * bytesPerFrame;
@@ -57,13 +57,14 @@ static int paCallback(
     if (bytesToCopy > 0) {
         // Copy data to output buffer
         memcpy(out, ctx->data + ctx->pos, bytesToCopy);
-        
+
         // Process 16-bit PCM data (amplitude inversion)
         if (ctx->format.bitsPerSample == 16) {
             size_t samples = bytesToCopy / sizeof(short);
+            printf("[PROCESS] Applying amplitude inversion to %zu samples\n", samples);
             preprocess_pcm_buffer((short *)out, samples);
         }
-        
+
         ctx->pos += bytesToCopy;
     }
 
@@ -71,14 +72,15 @@ static int paCallback(
     if (ctx->pos >= ctx->size) {
         return paComplete;
     }
-    
+
     return paContinue;
 }
 
 // Load WAV file (supports non-standard formats)
-unsigned char* load_wav(const char* filename, size_t* pcm_size, wav_format_t* format) {
+unsigned char *load_wav(const char *filename, size_t *pcm_size, wav_format_t *format)
+{
     printf("[INFO] Opening WAV file: %s\n", filename);
-    FILE* fp = fopen(filename, "rb");
+    FILE *fp = fopen(filename, "rb");
     if (!fp) {
         fprintf(stderr, "[ERROR] Failed to open WAV file!\n");
         return NULL;
@@ -95,7 +97,7 @@ unsigned char* load_wav(const char* filename, size_t* pcm_size, wav_format_t* fo
     printf("[DEBUG] RIFF header read\n");
 
     // Verify RIFF header
-    if (strncmp(riffHeader, RIFF_HEADER, 4) != 0 || 
+    if (strncmp(riffHeader, RIFF_HEADER, 4) != 0 ||
         strncmp(riffHeader + 8, WAVE_HEADER, 4) != 0) {
         fprintf(stderr, "[ERROR] Not a valid WAV file!\n");
         fclose(fp);
@@ -105,22 +107,22 @@ unsigned char* load_wav(const char* filename, size_t* pcm_size, wav_format_t* fo
 
     char chunkId[5] = {0};
     uint32_t chunkSize = 0;
-    unsigned char* pcm_data = NULL;
+    unsigned char *pcm_data = NULL;
     bool fmt_found = false;
     bool data_found = false;
 
     printf("[DEBUG] Scanning chunks...\n");
-    
+
     // Iterate through all chunks
     while (fread(chunkId, 1, 4, fp) == 4) {
         fread(&chunkSize, 4, 1, fp);
         chunkId[4] = '\0'; // Ensure string termination
-        
+
         printf("[DEBUG] Found chunk: %s, size: %u bytes\n", chunkId, chunkSize);
 
         if (strcmp(chunkId, FMT_CHUNK) == 0) {
             printf("[INFO] Processing format chunk\n");
-            
+
             // Parse format chunk
             uint16_t audioFormat, numChannels, bitsPerSample;
             uint32_t sampleRate;
@@ -154,34 +156,32 @@ unsigned char* load_wav(const char* filename, size_t* pcm_size, wav_format_t* fo
                 fseek(fp, skipBytes, SEEK_CUR);
                 printf("[DEBUG] Skipping %zu extra bytes in fmt chunk\n", skipBytes);
             }
-        } 
-        else if (strcmp(chunkId, DATA_CHUNK) == 0) {
+        } else if (strcmp(chunkId, DATA_CHUNK) == 0) {
             printf("[INFO] Processing data chunk\n");
-            
+
             // Read data chunk
-            pcm_data = (unsigned char*)malloc(chunkSize);
+            pcm_data = (unsigned char *)malloc(chunkSize);
             if (!pcm_data) {
                 fprintf(stderr, "[ERROR] Failed to allocate %u bytes for PCM buffer!\n", chunkSize);
                 fclose(fp);
                 return NULL;
             }
             printf("[DEBUG] Allocated %u bytes for PCM data\n", chunkSize);
-            
+
             size_t read = fread(pcm_data, 1, chunkSize, fp);
             if (read != chunkSize) {
-                fprintf(stderr, "[ERROR] Failed to read PCM data! Expected %u, got %zu\n", 
-                       chunkSize, read);
+                fprintf(stderr, "[ERROR] Failed to read PCM data! Expected %u, got %zu\n",
+                        chunkSize, read);
                 free(pcm_data);
                 fclose(fp);
                 return NULL;
             }
-            
+
             *pcm_size = chunkSize;
             printf("[INFO] PCM data loaded (size: %zu bytes)\n", *pcm_size);
             data_found = true;
             break; // Stop searching after finding data chunk
-        } 
-        else {
+        } else {
             // Skip unknown chunk
             printf("[INFO] Skipping unknown chunk: %s (%u bytes)\n", chunkId, chunkSize);
             fseek(fp, chunkSize, SEEK_CUR);
@@ -213,22 +213,24 @@ unsigned char* load_wav(const char* filename, size_t* pcm_size, wav_format_t* fo
 }
 
 // Print PortAudio device information
-void print_device_info(PaDeviceIndex device) {
+void print_device_info(PaDeviceIndex device)
+{
     const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(device);
     if (!deviceInfo) {
         printf("[WARN] Failed to get device info for index %d\n", device);
         return;
     }
-    
+
     printf("[INFO] Audio Device #%d: %s\n", device, deviceInfo->name);
-    printf("       Input channels: %d, Output channels: %d\n", 
+    printf("       Input channels: %d, Output channels: %d\n",
            deviceInfo->maxInputChannels, deviceInfo->maxOutputChannels);
     printf("       Default sample rate: %.0f Hz\n", deviceInfo->defaultSampleRate);
     printf("       Default low latency: %.3f sec\n", deviceInfo->defaultLowOutputLatency);
     printf("       Default high latency: %.3f sec\n", deviceInfo->defaultHighOutputLatency);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     if (argc != 2) {
         fprintf(stderr, "[ERROR] Usage: %s <wav_file.wav>\n", argv[0]);
         return 1;
@@ -273,23 +275,21 @@ int main(int argc, char *argv[]) {
         .data = pcm_data,
         .size = pcm_size,
         .pos = 0,
-        .format = wav_format
-    };
+        .format = wav_format};
     printf("[DEBUG] Audio context initialized\n");
 
     // Set output parameters
-    const PaDeviceInfo* deviceInfo = Pa_GetDeviceInfo(device);
+    const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(device);
     PaStreamParameters outputParams = {
         .device = device,
         .channelCount = wav_format.channels,
         .sampleFormat = (wav_format.bitsPerSample == 16) ? paInt16 : paInt8,
         .suggestedLatency = deviceInfo->defaultLowOutputLatency,
-        .hostApiSpecificStreamInfo = NULL
-    };
+        .hostApiSpecificStreamInfo = NULL};
     printf("[INFO] Output parameters:\n");
     printf("       Channels: %d\n", outputParams.channelCount);
-    printf("       Sample format: %s\n", 
-          (outputParams.sampleFormat == paInt16) ? "16-bit integer" : "8-bit integer");
+    printf("       Sample format: %s\n",
+           (outputParams.sampleFormat == paInt16) ? "16-bit integer" : "8-bit integer");
     printf("       Suggested latency: %.3f sec\n", outputParams.suggestedLatency);
 
     // Open audio stream
@@ -297,13 +297,13 @@ int main(int argc, char *argv[]) {
     PaStream *stream;
     err = Pa_OpenStream(
         &stream,
-        NULL,                   // No input
-        &outputParams,          // Output parameters
-        wav_format.sampleRate,  // Sample rate
+        NULL,                         // No input
+        &outputParams,                // Output parameters
+        wav_format.sampleRate,        // Sample rate
         paFramesPerBufferUnspecified, // Auto buffer size
-        paClipOff,              // Disable clipping
-        paCallback,             // Callback function
-        &audioCtx               // User data
+        paClipOff,                    // Disable clipping
+        paCallback,                   // Callback function
+        &audioCtx                     // User data
     );
 
     if (err != paNoError) {
@@ -326,9 +326,9 @@ int main(int argc, char *argv[]) {
     }
 
     // Calculate duration
-    float duration = (float)pcm_size / 
-                   (wav_format.sampleRate * wav_format.channels * (wav_format.bitsPerSample / 8.0f));
-    
+    float duration = (float)pcm_size /
+                     (wav_format.sampleRate * wav_format.channels * (wav_format.bitsPerSample / 8.0f));
+
     printf("[INFO] Playing: %s (%.1f seconds)\n", argv[1], duration);
 
     // Wait for playback completion
@@ -351,19 +351,19 @@ int main(int argc, char *argv[]) {
     if (err != paNoError) {
         fprintf(stderr, "[WARN] Error stopping stream: %s\n", Pa_GetErrorText(err));
     }
-    
+
     printf("[INFO] Closing stream...\n");
     err = Pa_CloseStream(stream);
     if (err != paNoError) {
         fprintf(stderr, "[WARN] Error closing stream: %s\n", Pa_GetErrorText(err));
     }
-    
+
     printf("[INFO] Terminating PortAudio...\n");
     Pa_Terminate();
-    
+
     printf("[INFO] Freeing PCM data...\n");
     free(pcm_data);
-    
+
     printf("[SUCCESS] Playback finished\n");
     return 0;
 }
