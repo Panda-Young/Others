@@ -59,8 +59,8 @@
         "cinttypes": "cpp"
     },
     "code-runner.executorMap": {
-        "c": "cd $dir && gcc $fileName log.c -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
-        "cpp": "cd $dir && g++ $fileName log.c -o $fileNameWithoutExt && $dir$fileNameWithoutExt"
+        "c": "cd $dir && gcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
+        "cpp": "cd $dir && g++ $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt"
     },
     "files.encoding": "utf8",
     "C_Cpp.intelliSenseMemoryLimit": 1024,
