@@ -11,7 +11,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := oboe
-LOCAL_SRC_FILES := ../oboe-1.9.3/lib/android.$(TARGET_ARCH_ABI)/liboboe.so
+LOCAL_SRC_FILES := ../oboe-1.9.3/libs/android.$(TARGET_ARCH_ABI)/liboboe.so
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../oboe-1.9.3/include  # Key: Add header file path
 include $(PREBUILT_SHARED_LIBRARY)
 
