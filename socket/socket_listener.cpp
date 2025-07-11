@@ -12,13 +12,12 @@
 #include <unistd.h>
 
 #define BUF_SIZE 1024
-#define PORT_ID 2502
+#define PORT_ID 2501
 #define DEBUG_DATA 0
 
 #ifdef __MINGW32__
 #include <process.h>
 #include <windows.h>
-#include <winsock2.h>
 
 #pragma comment(lib, "ws2_32.lib")
 

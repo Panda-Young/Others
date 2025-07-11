@@ -12,7 +12,7 @@
 
 #define BUF_SIZE 1024
 #define SERVER_IP "127.0.0.1"
-#define PORT_ID 2502
+#define PORT_ID 2501
 
 #ifdef __MINGW32__
 #include <winsock2.h>

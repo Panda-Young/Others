@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 #define BUF_SIZE 1024
-#define PORT_ID 2502
+#define PORT_ID 2501
 #define DEBUG_DATA 0
 
 #ifdef __MINGW32__
