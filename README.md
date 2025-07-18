@@ -1,4 +1,4 @@
-**# C/C++ Examples & Test Code Repository
+## C/C++ Examples & Test Code Repository
 
 This repository contains:
 - C/C++ language usage examples
@@ -15,6 +15,3 @@ Welcome to submit:
 - Well-structured code examples
 - Test cases with documentation
 - Solutions for typical problems
-
-## Structure Example
-**
