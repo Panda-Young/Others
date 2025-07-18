@@ -33,6 +33,12 @@ void preprocess_pcm_buffer(short *buffer, size_t samples)
         buffer[i] = -buffer[i]; // Amplitude inversion
     }
 }
+void preprocess_float_buffer(float *buffer, size_t samples)
+{
+    for (size_t i = 0; i < samples; ++i) {
+        buffer[i] = -buffer[i]; // Amplitude inversion
+    }
+}
 
 // PortAudio callback function
 static int paCallback(
@@ -44,7 +50,6 @@ static int paCallback(
     void *userData)
 {
     AudioData *ctx = (AudioData *)userData;
-    unsigned char *out = (unsigned char *)output;
 
     // Calculate bytes per frame
     int bytesPerFrame = (ctx->format.bitsPerSample / 8) * ctx->format.channels;
@@ -56,13 +61,19 @@ static int paCallback(
 
     if (bytesToCopy > 0) {
         // Copy data to output buffer
-        memcpy(out, ctx->data + ctx->pos, bytesToCopy);
+        memcpy(output, ctx->data + ctx->pos, bytesToCopy);
 
-        // Process 16-bit PCM data (amplitude inversion)
+        // Process audio data based on format
         if (ctx->format.bitsPerSample == 16) {
+            // 16-bit PCM processing (amplitude inversion)
             size_t samples = bytesToCopy / sizeof(short);
-            printf("[PROCESS] Applying amplitude inversion to %zu samples\n", samples);
-            preprocess_pcm_buffer((short *)out, samples);
+            printf("[PROCESS] Applying amplitude inversion to %zu 16-bit samples\n", samples);
+            preprocess_pcm_buffer((short *)output, samples);
+        } else if (ctx->format.bitsPerSample == 32) {
+            // 32-bit float processing (amplitude inversion)
+            size_t samples = bytesToCopy / sizeof(float);
+            printf("[PROCESS] Applying amplitude inversion to %zu 32-bit float samples\n", samples);
+            preprocess_float_buffer((float *)output, samples);
         }
 
         ctx->pos += bytesToCopy;
@@ -135,8 +146,9 @@ unsigned char *load_wav(const char *filename, size_t *pcm_size, wav_format_t *fo
             fread(&bitsPerSample, 2, 1, fp);
 
             // Validate format
-            if (audioFormat != 1) { // 1 = PCM
-                fprintf(stderr, "[ERROR] Only PCM format is supported! Found format: %d\n", audioFormat);
+            if (audioFormat != 1 && audioFormat != 3) { // 1 = PCM, 3 = IEEE float
+                fprintf(stderr, "[ERROR] Only PCM and IEEE float formats are supported! Found format: %d\n",
+                        audioFormat);
                 fclose(fp);
                 return NULL;
             }
@@ -283,7 +295,8 @@ int main(int argc, char *argv[])
     PaStreamParameters outputParams = {
         .device = device,
         .channelCount = wav_format.channels,
-        .sampleFormat = (wav_format.bitsPerSample == 16) ? paInt16 : paInt8,
+        .sampleFormat = (wav_format.bitsPerSample == 16) ? paInt16 : (wav_format.bitsPerSample == 32) ? paFloat32
+                                                                                                      : paInt8,
         .suggestedLatency = deviceInfo->defaultLowOutputLatency,
         .hostApiSpecificStreamInfo = NULL};
     printf("[INFO] Output parameters:\n");
