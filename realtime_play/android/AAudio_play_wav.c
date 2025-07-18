@@ -42,6 +42,12 @@ void preprocess_pcm_buffer(short *buffer, size_t samples)
         buffer[i] = -buffer[i];
     }
 }
+void preprocess_float_buffer(float *buffer, size_t samples)
+{
+    for (size_t i = 0; i < samples; ++i) {
+        buffer[i] = -buffer[i];
+    }
+}
 
 // Load WAV file and extract PCM data and format information
 unsigned char *load_wav(const char *filename, size_t *pcm_size, wav_format_t *format)
@@ -90,8 +96,8 @@ unsigned char *load_wav(const char *filename, size_t *pcm_size, wav_format_t *fo
             fread(&bitsPerSample, 2, 1, fp);
 
             // Validate format
-            if (audioFormat != 1) { // 1 = PCM
-                printf("[ERROR] Only PCM format is supported!\n");
+            if (audioFormat != 1 && audioFormat != 3) { // 1 = PCM, 3 = IEEE float
+                printf("[ERROR] Only PCM and IEEE float formats are supported!\n");
                 fclose(fp);
                 return NULL;
             }
@@ -184,11 +190,14 @@ aaudio_data_callback_result_t audioCallback(
         memcpy(audioData, ctx->data + ctx->pos, bytesToCopy);
         const size_t samplesToProcess = bytesToCopy / sizeof(short);
         preprocess_pcm_buffer((short *)audioData, samplesToProcess);
-        ctx->pos += bytesToCopy;
+    } else if (ctx->format.bitsPerSample == 32) {
+        memcpy(audioData, ctx->data + ctx->pos, bytesToCopy);
+        const size_t samplesToProcess = bytesToCopy / sizeof(float);
+        preprocess_float_buffer((float *)audioData, samplesToProcess);
     } else {
         memcpy(audioData, ctx->data + ctx->pos, bytesToCopy);
-        ctx->pos += bytesToCopy;
     }
+    ctx->pos += bytesToCopy;
 
     // Zero-pad if partial frame
     if (bytesToCopy < bytesNeeded) {
@@ -235,7 +244,12 @@ int main(int argc, char *argv[])
         .pos = 0,
         .playback_finished = false,
         .format = wav_format};
-
+    aaudio_format_t aaudioFormat;
+    if (wav_format.bitsPerSample == 32) {
+        aaudioFormat = AAUDIO_FORMAT_PCM_FLOAT;
+    } else {
+        aaudioFormat = AAUDIO_FORMAT_PCM_I16;
+    }
     // Initialize AAudio builder
     AAudioStreamBuilder *builder;
     AAudio_createStreamBuilder(&builder);
@@ -244,7 +258,7 @@ int main(int argc, char *argv[])
     AAudioStreamBuilder_setDirection(builder, AAUDIO_DIRECTION_OUTPUT);
     AAudioStreamBuilder_setSampleRate(builder, wav_format.sampleRate);
     AAudioStreamBuilder_setChannelCount(builder, wav_format.channels);
-    AAudioStreamBuilder_setFormat(builder, AAUDIO_FORMAT_PCM_I16); // Only 16-bit supported
+    AAudioStreamBuilder_setFormat(builder, aaudioFormat);
 
     // Set correct frames per callback
     AAudioStreamBuilder_setFramesPerDataCallback(builder, FRAMES_PER_BUFFER);

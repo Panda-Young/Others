@@ -43,6 +43,12 @@ public:
             buffer[i] = -buffer[i];
         }
     }
+    void preprocess_float_buffer(float *buffer, size_t samples)
+    {
+        for (size_t i = 0; i < samples; ++i) {
+            buffer[i] = -buffer[i];
+        }
+    }
 
     DataCallbackResult onAudioReady(AudioStream *stream, void *audioData, int32_t numFrames) override
     {
@@ -67,12 +73,14 @@ public:
 
             const size_t samplesToProcess = bytesToCopy / sizeof(short);
             preprocess_pcm_buffer(static_cast<short *>(audioData), samplesToProcess);
-
-            ctx_->pos += bytesToCopy;
+        } else if (ctx_->format.bitsPerSample == 32) {
+            memcpy(audioData, ctx_->data + ctx_->pos, bytesToCopy);
+            const size_t samplesToProcess = bytesToCopy / sizeof(float);
+            preprocess_float_buffer(static_cast<float *>(audioData), samplesToProcess);
         } else {
             memcpy(audioData, ctx_->data + ctx_->pos, bytesToCopy);
-            ctx_->pos += bytesToCopy;
         }
+        ctx_->pos += bytesToCopy;
 
         if (bytesToCopy < bytesNeeded) {
             size_t paddingBytes = bytesNeeded - bytesToCopy;
@@ -151,8 +159,8 @@ unsigned char *load_wav(const char *filename, size_t *pcm_size, wav_format_t *fo
             fread(&bitsPerSample, 2, 1, fp);
 
             // Validate format
-            if (audioFormat != 1) { // 1 = PCM
-                printf("[ERROR] Only PCM format is supported!\n");
+            if (audioFormat != 1 && audioFormat != 3) { // 1 = PCM, 3 = IEEE float
+                printf("[ERROR] Only PCM and IEEE float formats are supported!\n");
                 fclose(fp);
                 return NULL;
             }
@@ -242,11 +250,12 @@ int main(int argc, char *argv[])
     std::shared_ptr<AudioStream> stream;
     auto audioCallback = std::make_shared<AudioCallback>(&audioCtx);
     auto errorCallback = std::make_shared<ErrorCallback>(&audioCtx);
+    AudioFormat oboeFormat = (wav_format.bitsPerSample == 32) ? AudioFormat::Float : AudioFormat::I16;
 
     builder.setDirection(Direction::Output)
         ->setSampleRate(wav_format.sampleRate)
         ->setChannelCount(wav_format.channels)
-        ->setFormat(AudioFormat::I16)
+        ->setFormat(oboeFormat)
         ->setDataCallback(audioCallback)
         ->setErrorCallback(errorCallback)
         ->setPerformanceMode(PerformanceMode::LowLatency)
