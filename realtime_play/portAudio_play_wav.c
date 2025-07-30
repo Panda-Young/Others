@@ -20,7 +20,7 @@ typedef struct {
 
 // Audio data context
 typedef struct {
-    unsigned char *data;
+    char *data;
     size_t size;
     size_t pos;
     wav_format_t format;
@@ -88,7 +88,7 @@ static int paCallback(
 }
 
 // Load WAV file (supports non-standard formats)
-unsigned char *load_wav(const char *filename, size_t *pcm_size, wav_format_t *format)
+char *load_wav(const char *filename, size_t *pcm_size, wav_format_t *format)
 {
     printf("[INFO] Opening WAV file: %s\n", filename);
     FILE *fp = fopen(filename, "rb");
@@ -118,7 +118,7 @@ unsigned char *load_wav(const char *filename, size_t *pcm_size, wav_format_t *fo
 
     char chunkId[5] = {0};
     uint32_t chunkSize = 0;
-    unsigned char *pcm_data = NULL;
+    char *pcm_data = NULL;
     bool fmt_found = false;
     bool data_found = false;
 
@@ -172,7 +172,7 @@ unsigned char *load_wav(const char *filename, size_t *pcm_size, wav_format_t *fo
             printf("[INFO] Processing data chunk\n");
 
             // Read data chunk
-            pcm_data = (unsigned char *)malloc(chunkSize);
+            pcm_data = (char *)malloc(chunkSize);
             if (!pcm_data) {
                 fprintf(stderr, "[ERROR] Failed to allocate %u bytes for PCM buffer!\n", chunkSize);
                 fclose(fp);
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
     // Load PCM data and format information
     size_t pcm_size = 0;
     wav_format_t wav_format = {0};
-    unsigned char *pcm_data = load_wav(argv[1], &pcm_size, &wav_format);
+    char *pcm_data = load_wav(argv[1], &pcm_size, &wav_format);
     if (!pcm_data) {
         fprintf(stderr, "[ERROR] Failed to load WAV file\n");
         return 1;
