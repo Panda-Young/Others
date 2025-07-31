@@ -57,17 +57,17 @@ int main()
     }
 
     int param2 = 2;
-    if (set_param(algo_handle, SET_PARAM2, (void *)&param2, sizeof(int)) != 0) {
-        printf("Failed to set algo param cmd %d size %lu.\n", SET_PARAM2, sizeof(int));
+    if (set_param(algo_handle, ALGO_PARAM2, (void *)&param2, sizeof(int)) != 0) {
+        printf("Failed to set algo param cmd %d size %lu.\n", ALGO_PARAM2, sizeof(int));
     } else {
-        printf("Algorithm set param cmd %d size %lu success.\n", SET_PARAM2, sizeof(int));
+        printf("Algorithm set param cmd %d size %lu success.\n", ALGO_PARAM2, sizeof(int));
     }
 
     char param3[] = "param3";
-    if (set_param(algo_handle, SET_PARAM3, param3, sizeof(param3)) != 0) {
-        printf("Failed to set algo param cmd %d size %lu.\n", SET_PARAM3, sizeof(param3));
+    if (set_param(algo_handle, ALGO_PARAM3, param3, sizeof(param3)) != 0) {
+        printf("Failed to set algo param cmd %d size %lu.\n", ALGO_PARAM3, sizeof(param3));
     } else {
-        printf("Algorithm set param cmd %d size %lu success.\n", SET_PARAM3, sizeof(param3));
+        printf("Algorithm set param cmd %d size %lu success.\n", ALGO_PARAM3, sizeof(param3));
     }
 
     ProcessFunc process = (ProcessFunc)dlsym(shared_lib_handle, "algo_process");
@@ -143,16 +143,16 @@ int main()
         return 1;
     }
     int param2 = 2;
-    if (set_param(algo_handle, SET_PARAM2, (void *)&param2, sizeof(int)) != 0) {
-        printf("Failed to set algo param cmd %d size %lu.\n", SET_PARAM2, sizeof(int));
+    if (set_param(algo_handle, ALGO_PARAM2, (void *)&param2, sizeof(int)) != 0) {
+        printf("Failed to set algo param cmd %d size %lu.\n", ALGO_PARAM2, sizeof(int));
     } else {
-        printf("Algorithm set param cmd %d size %lu success.\n", SET_PARAM2, sizeof(int));
+        printf("Algorithm set param cmd %d size %lu success.\n", ALGO_PARAM2, sizeof(int));
     }
     char param3[] = "param3";
-    if (set_param(algo_handle, SET_PARAM3, param3, sizeof(param3)) != 0) {
-        printf("Failed to set algo param cmd %d size %lu.\n", SET_PARAM3, sizeof(param3));
+    if (set_param(algo_handle, ALGO_PARAM3, param3, sizeof(param3)) != 0) {
+        printf("Failed to set algo param cmd %d size %lu.\n", ALGO_PARAM3, sizeof(param3));
     } else {
-        printf("Algorithm set param cmd %d size %lu success.\n", SET_PARAM3, sizeof(param3));
+        printf("Algorithm set param cmd %d size %lu success.\n", ALGO_PARAM3, sizeof(param3));
     }
 
     ProcessFunc process = (ProcessFunc)GetProcAddress(hinstLib, "algo_process");

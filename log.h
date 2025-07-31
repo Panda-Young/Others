@@ -237,14 +237,14 @@ extern FILE *log_file;
 void __attribute__((constructor)) open_log_file(void);
 void __attribute__((destructor)) close_log_file(void);
 #elif defined(_MSC_VER)
-#define LOGD2(fmt, ...) LOG(LOG_LEVEL_DEBUG, 0, "", fmt, __VA_ARGS__)
-#define LOGD(fmt, ...) LOG(LOG_LEVEL_DEBUG, 1, "DEBUG", fmt, __VA_ARGS__)
-#define LOGI2(fmt, ...) LOG(LOG_LEVEL_INFO, 0, "INFO", fmt, __VA_ARGS__)
-#define LOGI(fmt, ...) LOG(LOG_LEVEL_INFO, 1, "INFO", fmt, __VA_ARGS__)
-#define LOGW2(fmt, ...) LOG(LOG_LEVEL_WARNING, 0, "WARN", fmt, __VA_ARGS__)
-#define LOGW(fmt, ...) LOG(LOG_LEVEL_WARNING, 1, "WARN", fmt, __VA_ARGS__)
-#define LOGE2(fmt, ...) LOG(LOG_LEVEL_ERROR, 0, "ERROR", fmt, __VA_ARGS__)
-#define LOGE(fmt, ...) LOG(LOG_LEVEL_ERROR, 1, "ERROR", fmt, __VA_ARGS__)
+#define LOGD2(fmt, ...) LOG(LOG_LEVEL_DEBUG, 0, "", fmt, ##__VA_ARGS__)
+#define LOGD(fmt, ...) LOG(LOG_LEVEL_DEBUG, 1, "DEBUG", fmt, ##__VA_ARGS__)
+#define LOGI2(fmt, ...) LOG(LOG_LEVEL_INFO, 0, "INFO", fmt, ##__VA_ARGS__)
+#define LOGI(fmt, ...) LOG(LOG_LEVEL_INFO, 1, "INFO", fmt, ##__VA_ARGS__)
+#define LOGW2(fmt, ...) LOG(LOG_LEVEL_WARNING, 0, "WARN", fmt, ##__VA_ARGS__)
+#define LOGW(fmt, ...) LOG(LOG_LEVEL_WARNING, 1, "WARN", fmt, ##__VA_ARGS__)
+#define LOGE2(fmt, ...) LOG(LOG_LEVEL_ERROR, 0, "ERROR", fmt, ##__VA_ARGS__)
+#define LOGE(fmt, ...) LOG(LOG_LEVEL_ERROR, 1, "ERROR", fmt, ##__VA_ARGS__)
 #endif
 
 #else // print log to console
@@ -330,14 +330,14 @@ void __attribute__((destructor)) close_log_file(void);
 #define LOGE2(fmt, args...) LOG(LOG_LEVEL_ERROR, "\e[1;31m", 0, fmt, ##args)
 #define LOGE(fmt, args...) LOG(LOG_LEVEL_ERROR, "\e[1;31m", 1, fmt, ##args)
 #elif defined(_MSC_VER)
-#define LOGD2(fmt, ...) LOG(LOG_LEVEL_DEBUG, "\x1b[1;36m", 0, fmt, __VA_ARGS__)
-#define LOGD(fmt, ...) LOG(LOG_LEVEL_DEBUG, "\x1b[1;36m", 1, fmt, __VA_ARGS__)
-#define LOGI2(fmt, ...) LOG(LOG_LEVEL_INFO, "\x1b[1;32m", 0, fmt, __VA_ARGS__)
-#define LOGI(fmt, ...) LOG(LOG_LEVEL_INFO, "\x1b[1;32m", 1, fmt, __VA_ARGS__)
-#define LOGW2(fmt, ...) LOG(LOG_LEVEL_WARNING, "\x1b[1;33m", 0, fmt, __VA_ARGS__)
-#define LOGW(fmt, ...) LOG(LOG_LEVEL_WARNING, "\x1b[1;33m", 1, fmt, __VA_ARGS__)
-#define LOGE2(fmt, ...) LOG(LOG_LEVEL_ERROR, "\x1b[1;31m", 0, fmt, __VA_ARGS__)
-#define LOGE(fmt, ...) LOG(LOG_LEVEL_ERROR, "\x1b[1;31m", 1, fmt, __VA_ARGS__)
+#define LOGD2(fmt, ...) LOG(LOG_LEVEL_DEBUG, "\x1b[1;36m", 0, fmt, ##__VA_ARGS__)
+#define LOGD(fmt, ...) LOG(LOG_LEVEL_DEBUG, "\x1b[1;36m", 1, fmt, ##__VA_ARGS__)
+#define LOGI2(fmt, ...) LOG(LOG_LEVEL_INFO, "\x1b[1;32m", 0, fmt, ##__VA_ARGS__)
+#define LOGI(fmt, ...) LOG(LOG_LEVEL_INFO, "\x1b[1;32m", 1, fmt, ##__VA_ARGS__)
+#define LOGW2(fmt, ...) LOG(LOG_LEVEL_WARNING, "\x1b[1;33m", 0, fmt, ##__VA_ARGS__)
+#define LOGW(fmt, ...) LOG(LOG_LEVEL_WARNING, "\x1b[1;33m", 1, fmt, ##__VA_ARGS__)
+#define LOGE2(fmt, ...) LOG(LOG_LEVEL_ERROR, "\x1b[1;31m", 0, fmt, ##__VA_ARGS__)
+#define LOGE(fmt, ...) LOG(LOG_LEVEL_ERROR, "\x1b[1;31m", 1, fmt, ##__VA_ARGS__)
 #endif
 #endif
 
