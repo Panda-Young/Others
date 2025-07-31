@@ -15,6 +15,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
+    #ifdef ALGO_EXPORTS
+        #define ALGO_API __declspec(dllexport)
+    #else
+        #define ALGO_API __declspec(dllimport)
+    #endif
+#else
+    #define ALGO_API
+#endif
+
 #define E_OK 0
 #define E_VERSION_BUFFER_NULL -1
 #define E_ALGO_HANDLE_NULL -2
@@ -30,11 +40,19 @@ typedef enum algo_param {
     ALGO_PARAM4,
 } algo_param_t;
 
-int get_algo_version(char *version);
-void *algo_init();
-void algo_deinit(void *algo_handle);
-int algo_set_param(void *algo_handle, algo_param_t cmd, void *param, int param_size);
-int algo_get_param(void *algo_handle, algo_param_t cmd, void *param, int param_size);
-int algo_process(void *algo_handle, const float *input, float *output, int block_size);
+ALGO_API int get_algo_version(char *version);
+ALGO_API void *algo_init();
+ALGO_API void algo_deinit(void *algo_handle);
+ALGO_API int algo_set_param(void *algo_handle, algo_param_t cmd, void *param, int param_size);
+ALGO_API int algo_get_param(void *algo_handle, algo_param_t cmd, void *param, int param_size);
+ALGO_API int algo_process(void *algo_handle, const float *input, float *output, int block_size);
 
 #endif
+
+/* Compile Command:
+Windows:
+    gcc -shared -DALGO_EXPORTS -fPIC -o algo_example.dll algo_example.c log.c -lm
+    cl /LD /D "ALGO_EXPORTS" algo_example.c log.c /link
+Linux:
+    gcc -shared -DALGO_EXPORTS -fPIC -o libalgo_example.so algo_example.c log.c -lm
+*/

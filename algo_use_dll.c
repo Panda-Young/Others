@@ -107,7 +107,7 @@ int main()
 #elif defined(_WIN32)
 #include <windows.h>
 
-#define LIB_NAME "libalgo_example.dll"
+#define LIB_NAME "algo_example.dll"
 
 int main()
 {
@@ -115,6 +115,8 @@ int main()
     if (hinstLib == NULL) {
         printf("Failed to load library %s\n", LIB_NAME);
         return 1;
+    } else {
+        printf("Load library %s Successfully.\n", LIB_NAME);
     }
 
     GetVersionFunc get_version = (GetVersionFunc)GetProcAddress(hinstLib, "get_algo_version");
