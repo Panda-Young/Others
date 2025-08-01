@@ -50,9 +50,11 @@ ALGO_API int algo_process(void *algo_handle, const float *input, float *output, 
 #endif
 
 /* Compile Command:
-Windows:
-    gcc -shared -DALGO_EXPORTS -fPIC -o algo_example.dll algo_example.c log.c -lm
-    cl /LD /D "ALGO_EXPORTS" algo_example.c log.c /link
+Windows Visal Studio:
+    call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+    cl /LD /DALGO_EXPORTS algo_example.c log.c /link /out:algo_example.dll
+Windows MinGW:
+    gcc -shared -DALGO_EXPORTS -fPIC algo_example.c log.c -lm -o algo_example.dll
 Linux:
-    gcc -shared -DALGO_EXPORTS -fPIC -o libalgo_example.so algo_example.c log.c -lm
+    gcc -shared -DALGO_EXPORTS -fPIC algo_example.c log.c -lm -o libalgo_example.so
 */
