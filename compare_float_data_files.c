@@ -1,11 +1,10 @@
-/*
- * @Description: open and read two binary float data files,
-                and then calculate and count the average difference and maximum difference
- * @Date: 2024-03-22 16:43:22
- * @Version: 0.1.0
- * @Author: Panda-Young
- * Copyright (c) 2024 by @Panda-Young, All Rights Reserved.
- */
+/***************************************************************************
+ * Description: compare two binary float data files
+ * version: 0.1.0
+ * Author: Panda-Young
+ * Date: 2025-01-06 23:07:49
+ * Copyright (c) 2025 by Panda-Young, All Rights Reserved.
+ **************************************************************************/
 
 #include <errno.h>
 #include <float.h>
@@ -14,7 +13,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
