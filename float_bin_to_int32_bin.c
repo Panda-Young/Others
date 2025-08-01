@@ -16,6 +16,7 @@
 int main(int argc, char *argv[])
 {
     FILE *fpin = NULL, *fpout = NULL;
+    char output_filename[_MAX_PATH] = {0};
     if (argc < 2)
     {
         printf("Usage: %s <float binary file path> <int32 binary file path>\n", argv[0]);
@@ -28,7 +29,6 @@ int main(int argc, char *argv[])
         }
         
         // 安全地创建输出文件名
-        char *output_filename = malloc(strlen(argv[1]) + 12);
         if (output_filename == NULL) {
             printf("Error: Memory allocation failed\n");
             fclose(fpin);
@@ -39,11 +39,9 @@ int main(int argc, char *argv[])
         fpout = fopen(output_filename, "wb");
         if (fpout == NULL) {
             printf("Error: Cannot create output file %s\n", output_filename);
-            free(output_filename);
             fclose(fpin);
             return -1;
         }
-        free(output_filename);
     } else {
         fpin = fopen(argv[1], "rb");
         if (fpin == NULL) {
@@ -93,7 +91,7 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    printf("Conversion completed successfully.\n");
+    printf("Conversion to \"%s\" completed successfully.\n", output_filename);
     fclose(fpout);
     fclose(fpin);
     return 0;
