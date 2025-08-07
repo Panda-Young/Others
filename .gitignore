@@ -64,3 +64,5 @@ dkms.conf
 # test files
 test_dir/
 test.*
+
+.vscode/
