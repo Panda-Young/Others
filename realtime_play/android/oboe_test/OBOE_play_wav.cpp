@@ -258,8 +258,8 @@ int main(int argc, char *argv[])
         ->setFormat(oboeFormat)
         ->setDataCallback(audioCallback)
         ->setErrorCallback(errorCallback)
-        ->setPerformanceMode(PerformanceMode::LowLatency)
-        ->setSharingMode(SharingMode::Exclusive);
+        ->setPerformanceMode(PerformanceMode::None)
+        ->setSharingMode(SharingMode::Shared);
 
     // Open the stream
     Result result = builder.openStream(stream);
